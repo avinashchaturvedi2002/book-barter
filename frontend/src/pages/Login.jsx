@@ -1,0 +1,203 @@
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import bookimg from "../assets/bi-removebg-preview.png";
+import { useAuth } from "../context/AuthContext"; // adjust path
+import { useLoading } from "../context/LoadingContext";
+import ErrorPage from "./ErrorPage";
+
+
+
+
+function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const { setUser,setToken } = useAuth();
+  const {showLoader,hideLoader}=useLoading();
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  showLoader("Logging you in...")
+  try {
+    const response = await fetch(`${backendUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        emailOrUsername: email, // can be email or username
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Login failed");
+    }
+
+    const data = await response.json();
+    console.log(data);
+    const emailOrUsername=data.emailOrUsername
+    console.log(data);
+    if (rememberMe) {
+      localStorage.setItem("token", data.token);
+    } else {
+      sessionStorage.setItem("token", data.token);
+    }
+    setToken(data.token)
+    setUser(data.emailOrUsername)// this sets user in contex
+    
+    navigate("/");
+  } catch (err) {
+    setError(err?.response?.data?.message || 
+  err?.message ||                 
+  "Something went wrong.")
+  }
+  finally{
+    hideLoader();
+  }
+};
+
+
+  const handleGoogleResponse = async (response) => {
+    showLoader("Logging You in.....")
+    try {
+      const res = await axios.post(`${backendUrl}/api/auth/google`, {
+        token: response.credential,
+      });
+
+      
+      const token = res.data.token;
+      console.log(res.data);
+
+      rememberMe
+        ? localStorage.setItem("token", token)
+        : sessionStorage.setItem("token", token);
+
+        setToken(token)
+      setUser(res.data.user)
+
+      navigate("/");
+    } catch (err) {
+      setError(err?.response?.data?.message || 
+  err?.message ||                 
+  "Something went wrong.")
+    }
+    finally{
+      hideLoader();
+    }
+  };
+
+  useEffect(() => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+  callback: handleGoogleResponse,
+});
+
+window.google.accounts.id.renderButton(
+  document.getElementById("google-signin-btn"),
+  {
+    theme: "outline",
+    size: "large",
+    shape: "rectangular",
+  }
+);
+
+    }
+  }, []);
+
+  return (
+    <div className="min-h-screen dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-white">
+      
+      <div className="min-h-screen text-slate-900 flex flex-col items-center justify-center py-6 px-4">
+        <div className="grid md:grid-cols-2 items-center gap-10 max-w-6xl max-md:max-w-md w-full">
+          <div className="flex-col justify-center items-center">
+            <div className="w-full flex items-end overflow-hidden justify-center">
+              <img src={bookimg} alt="" className="w-60 h-60 object-contain" />
+            </div>
+            <h2 className="lg:text-5xl text-3xl font-bold lg:leading-[57px]">
+              Welcome to Book Barter!
+            </h2>
+            <p className="text-sm mt-6 text-slate-500 dark:text-slate-300 leading-relaxed">
+              A Smarter Way to Share Books! Earn trust, build your collection, and save money.
+            </p>
+            <p className="text-sm mt-12 text-slate-500 dark:text-slate-300">
+              Don't have an account?
+              <Link to="/register" className="text-blue-600 font-medium hover:underline ml-1">
+                Register here
+              </Link>
+            </p>
+          </div>
+
+          <form
+            className="max-w-md md:ml-auto w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+            onSubmit={handleLogin}
+          >
+            <h3 className="text-2xl font-bold mb-6 dark:text-white">Sign in</h3>
+
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium mb-1 dark:text-white">Email</label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 dark:text-white">Password</label>
+                <input
+                  type="password"
+                  className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              {error && <p className="text-red-500">{error}</p>}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center text-sm dark:text-white">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  Remember me
+                </label>
+                <p
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-blue-600 hover:underline text-sm cursor-pointer"
+                >
+                  Forgot password?
+                </p>
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded font-semibold"
+              >
+                Log in
+              </button>
+            </div>
+
+            <div className="my-4 flex items-center gap-4">
+              <hr className="w-full border-slate-300" />
+              <p className="text-sm text-slate-800 text-center dark:text-white">or</p>
+              <hr className="w-full border-slate-300" />
+            </div>
+
+            <div id="google-signin-btn" className="flex justify-center" />
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
