@@ -4,7 +4,7 @@ import moment from "moment";
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
 import { useSocket } from "../context/socketContext";
-import ChatSidebar from "../components/chat/ChatSidebar";
+import ChatSidebar from "../components/chat/ChatSideBar";
 import ChatHeader from "../components/chat/ChatHeader";
 import MessageList from "../components/chat/MessageList";
 import MessageInput from "../components/chat/MessageInput";
