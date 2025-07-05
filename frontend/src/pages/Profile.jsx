@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import BookCard from "../components/ui/BookCard";
 import RatingSection from "../components/profile/RatingSection.jsx";
-import StarDisplay from "../components/common/StarDisplay";
 import BorrowedBooks from "../components/Tabs/BorrowedBooks";
 import LentBooks  from "../components/Tabs/LentBooks";
-import { MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
