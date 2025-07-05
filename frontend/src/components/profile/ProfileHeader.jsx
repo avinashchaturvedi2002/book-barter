@@ -9,6 +9,7 @@ export default function ProfileHeader({
   handleProfilePicChange,
   userId,
   navigate,
+  setActiveTab
 }) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6">

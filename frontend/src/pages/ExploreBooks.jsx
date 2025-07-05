@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "../components/ui/Header";
 import BookCard from "../components/ui/bookcard";
 import CustomDropdown from "../components/ui/customdropdown";
 import ExchangeModal from "../modals/ExchangeModal";

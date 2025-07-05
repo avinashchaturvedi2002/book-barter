@@ -18,6 +18,7 @@ import NotificationPage from "./pages/Notifications"
 import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import InstallPrompt from "./components/util/InstallPrompt"
+import { useEffect } from "react"
 function App() {
   useEffect(() => {
   const handler = (e) => {

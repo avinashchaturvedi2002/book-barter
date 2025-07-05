@@ -138,7 +138,8 @@ export default function Profile() {
   profilePic={profilePic}
   handleProfilePicChange={handleProfilePicChange}
   userId={userId}
-  navigate={navigate} />
+  navigate={navigate} 
+  setActiveTab={setActiveTab}/>
 <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} isOwnProfile={isOwnProfile} />
 {activeTab === "uploaded" && <UploadedBooksGrid books={userData.books} isOwnProfile={isOwnProfile} />}
 {activeTab === "history" && <SwapHistoryGrid swapHistory={swapHistory} />}

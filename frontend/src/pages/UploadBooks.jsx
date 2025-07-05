@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
 import { UploadCloud, Camera, LocateIcon } from "lucide-react";
-import { Header } from "../components/ui/Header";
 import BookAutocompleteInput from "../components/util/autocomplete";
-import CityAutocompleteInput from "../components/util/CityAutocomplete";
+import CityAutocompleteInput from "../components/util/CityAutoComplete";
 
 import ErrorPage from "./ErrorPage";
 
