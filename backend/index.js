@@ -30,7 +30,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://192.168.31.198:5173",
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "https://book-barter-live.netlify.app",
 ].filter(Boolean); // removes undefined
 
 app.use(cors({
