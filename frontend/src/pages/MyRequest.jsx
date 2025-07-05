@@ -4,7 +4,7 @@ import OTPValidationModal from "../modals/OTPValidationModal";
 import SuccessPopup from "../components/ui/success";
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
-import MyExchangeRequestCard from "../components/ui/MyExchangeRequestCard";
+import MyExchangeRequestCard from "../components/ui/myExchangeRequestCard";
 import MyPurchaseCard from "../components/ui/myPurchaseCard";
 
 
