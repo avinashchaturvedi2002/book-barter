@@ -8,13 +8,30 @@ const onlineUsers = new Map();      // userId  ->  Set<socket.id>
 let ioInstance;
 
 export function setupSocket(server) {
-  ioInstance = new Server(server, {
-    cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
-      methods: ["GET", "POST"],
-      credentials: true,
+
+
+  const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://192.168.31.198:5173",
+  "http://localhost:3000",
+  "https://book-barter-live.netlify.app",
+].filter(Boolean);
+
+ioInstance = new Server(server, {
+  cors: {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log(`❌ Socket.IO blocked origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
     },
-  });
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
   const io = ioInstance;
 
   /* ────────────  GLOBAL AUTH MIDDLEWARE  ──────────── */
