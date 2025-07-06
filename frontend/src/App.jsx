@@ -21,6 +21,7 @@ import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import InstallPrompt from "./components/util/InstallPrompt"
 import { useEffect } from "react"
+import HowItWorksPage from "./pages/HowItWorks"
 function App() {
   useEffect(() => {
   const handler = (e) => {
@@ -59,6 +60,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword/>}/>
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/how-it-works" element={<HowItWorksPage/>}/>
 
         </Routes>
       </main>

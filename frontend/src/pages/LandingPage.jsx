@@ -8,7 +8,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-white">
       
 
-      <main className="max-w-5xl mx-auto px-4 py-10 text-center">
+      <main className="max-w-5xl mx-auto px-4 py-2 text-center">
         <motion.h2
           className="text-4xl sm:text-5xl font-bold leading-tight mb-6"
           initial={{ opacity: 0, y: -20 }}
@@ -20,9 +20,17 @@ export default function LandingPage() {
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto">
           A Smarter Way to Share Books! Earn trust, build your collection, and save money.
         </p>
-        <Link to="/browse">
-  <Button className="text-base px-6 py-4">Explore Books Now</Button>
-</Link>
+        <div className="flex flex-col gap-4 justify-center">
+  <Link to="/browse">
+    <Button className="text-base px-6 py-4">Explore Books Now</Button>
+  </Link>
+  <Link to="/how-it-works">
+    <Button variant="outline" className="my-2">
+  How Book Barter Works ?
+</Button>
+
+  </Link>
+</div>
       </main>
 
       <section className="max-w-5xl mx-auto px-4 py-16 grid md:grid-cols-3 gap-10 text-left">
