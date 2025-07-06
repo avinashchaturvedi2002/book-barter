@@ -259,7 +259,8 @@ const pwaGoogleHandling=async (req, res) => {
     );
 
     // 5. Redirect back to frontend with token
-    return res.redirect(`${FRONTEND_URL}/login?jwt=${appToken}`);
+    const safeFrontendUrl = FRONTEND_URL.replace(/\/+$/, ""); // remove trailing slashes
+    return res.redirect(`${safeFrontendUrl}/login?jwt=${appToken}`);
   } catch (err) {
     console.error('Google Token Exchange Error:',
     err.response?.data || err.message);
