@@ -4,6 +4,7 @@ import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import crypto from "crypto"
 import { sendEmail } from "../utils/sendEmail.js";
+import axios from "axios"
 // Utility: Generate token
 const generateToken = (userId,firstName,lastName,email) => {
   return jwt.sign({ id: userId,firstName,lastName,email }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -220,7 +221,51 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const pwaGoogleHandling=async (req, res) => {
 
+  const code = req.query.code;
+  const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+  const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+  const FRONTEND_URL = process.env.FRONTEND_URL;
+  if (!code) return res.status(400).send("Missing authorization code");
 
+  try {
+    // 1. Exchange code for tokens
+    const tokenRes = await axios.post('https://oauth2.googleapis.com/token', {
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: `${process.env.BACKEND_URL}/api/auth/google/cb`,
+      grant_type: 'authorization_code',
+    });
 
-export { registerUser, loginUser, googleAuth, verifyToken, resetPassword, forgotPassword };
+    const { id_token } = tokenRes.data;
+
+    // 2. Decode ID token to get user info
+    const userInfo = jwt.decode(id_token);
+    const { email, name, picture } = userInfo;
+
+    // 3. Create or find user in DB
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({ email, name, profilePic: picture });
+    }
+
+    // 4. Generate your app’s JWT
+    const appToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // 5. Redirect back to frontend with token
+    return res.redirect(`${FRONTEND_URL}/login?jwt=${appToken}`);
+  } catch (err) {
+    console.error('Google Token Exchange Error:',
+    err.response?.data || err.message);
+  return res.redirect(
+    `${FRONTEND_URL}/login?error=oauth_failed`
+  );
+  }
+}
+export { registerUser, loginUser, googleAuth, verifyToken, resetPassword, forgotPassword,pwaGoogleHandling };

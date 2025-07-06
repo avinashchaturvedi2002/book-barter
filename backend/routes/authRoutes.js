@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, googleAuth, loginUser, verifyToken, forgotPassword, resetPassword } from "../controllers/authController.js";
+import { registerUser, googleAuth, loginUser, verifyToken, forgotPassword, resetPassword, pwaGoogleHandling } from "../controllers/authController.js";
 import { body } from "express-validator";
 
 const router = express.Router();
@@ -24,4 +24,6 @@ router.get("/verify",verifyToken);
 router.post("/forgot-password",forgotPassword)
 
 router.post("/reset-password",resetPassword)
+
+router.get("/google/cb",pwaGoogleHandling)
 export default router;
