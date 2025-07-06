@@ -73,6 +73,7 @@ useEffect(() => {
       const res = await axios.get(`${backendUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(res.data);
       setUser(res.data);                 
     } catch (err) {
       console.error("Failed to fetch user profile:", err);
@@ -81,12 +82,16 @@ useEffect(() => {
   };
 
   if (jwt) {
+    showLoader("Signing you in…");
     rememberMe
       ? localStorage.setItem("token", jwt)
       : sessionStorage.setItem("token", jwt);
 
     setToken(jwt);
-    fetchUserProfile(jwt).then(() => navigate("/"));
+    fetchUserProfile(jwt).then(() => {
+      hideLoader();                
+      navigate("/", { replace: true });
+    });
   }
 
   if (error) setError("Google authentication failed. Try again.");
