@@ -1,5 +1,6 @@
 import express from "express";
-import { registerUser, googleAuth, loginUser, verifyToken, forgotPassword, resetPassword, pwaGoogleHandling } from "../controllers/authController.js";
+import { registerUser, googleAuth, loginUser, verifyToken as verifyTokenController, forgotPassword, resetPassword, pwaGoogleHandling } from "../controllers/authController.js";
+import verifyToken from "../middlewares/verifyUser.js";
 import { body } from "express-validator";
 
 const router = express.Router();
@@ -19,11 +20,27 @@ router.post("/google", googleAuth);
 
 router.post("/login",loginUser);
 
-router.get("/verify",verifyToken);
+router.get("/verify",verifyTokenController);
 
 router.post("/forgot-password",forgotPassword)
 
 router.post("/reset-password",resetPassword)
 
 router.get("/google/cb",pwaGoogleHandling)
+
+
+
+
+// ✅ Authenticated route to get user info
+router.get("/me", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("name email profilePic");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
+
+
 export default router;

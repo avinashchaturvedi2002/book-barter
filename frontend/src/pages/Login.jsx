@@ -65,20 +65,33 @@ function Login() {
 
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
-  const jwt = params.get('jwt');
-  const error = params.get('error');
+  const jwt   = params.get("jwt");
+  const error = params.get("error");
+
+  const fetchUserProfile = async (token) => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(res.data);                 
+    } catch (err) {
+      console.error("Failed to fetch user profile:", err);
+      setUser(null);
+    }
+  };
 
   if (jwt) {
-    rememberMe ? localStorage.setItem("token", jwt) : sessionStorage.setItem("token", jwt);
+    rememberMe
+      ? localStorage.setItem("token", jwt)
+      : sessionStorage.setItem("token", jwt);
+
     setToken(jwt);
-    setUser("Google User"); // Or call backend to fetch user profile
-    navigate("/");
+    fetchUserProfile(jwt).then(() => navigate("/"));
   }
 
-  if (error) {
-    setError("Google authentication failed. Try again.");
-  }
+  if (error) setError("Google authentication failed. Try again.");
 }, []);
+
 
 
 
