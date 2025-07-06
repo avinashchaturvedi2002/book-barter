@@ -4,12 +4,19 @@ import { FaInstagram, FaLinkedin, FaGithub } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import BuyCoffeeModal from "../../modals/CoffeeModal";
 
 
 export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
   const [showModal,setShowModal]=useState(false)
+  const location = useLocation();
+  const isChatConversation =
+    location.pathname.startsWith("/chat/") &&
+    window.innerWidth < 640; // <640px = mobile
+
+  if (isChatConversation) return null;
 
   return (
     <footer className="bg-blue-50 text-gray-700 w-full dark:text-gray-300 border-t border-gray-200 dark:border-gray-800">

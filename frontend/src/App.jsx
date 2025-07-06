@@ -39,7 +39,7 @@ function App() {
       <Header />
 
       {/* This main ensures the Routes take up full vertical space */}
-      <main className="flex-1">
+      <main className="flex-1 pt-16 sm:pt-0">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/browse" element={<ExploreBooks />} />

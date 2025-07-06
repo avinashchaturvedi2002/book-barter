@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 export default function BookCard({ book, onActionClick, isRequested = false, ownUser = false, showOwner=true }) {
-  console.log(book);
+
   return (
     
     <div className="border rounded-lg p-4 shadow hover:shadow-md transition flex flex-col h-full">

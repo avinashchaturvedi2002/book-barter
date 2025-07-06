@@ -58,7 +58,10 @@ export function Header() {
   };
 
   return (
-    <header className="py-4 px-2 sm:py-6 max-w-6xl flex justify-between items-center relative z-50">
+    <header
+  className="sm:static fixed top-0 inset-x-0 bg-white dark:bg-gray-900  z-[60] sm:z-30 py-4 px-2 sm:py-6 flex justify-between items-center"
+>
+
       <h1 className="mx-4 text-lg sm:text-2xl font-bold flex items-center gap-2 whitespace-nowrap">
         <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
       </h1>

@@ -10,6 +10,7 @@ import UploadedBooksGrid from "../components/profile/UploadedBooksGrid";
 import SwapHistoryGrid from "../components/profile/SwapHistoryGrid";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileTabs from "../components/profile/ProfileTabs";
+import LoginPromptModal from "../modals/LoginPromptModal.jsx";
 
 
 export default function Profile() {
@@ -25,7 +26,15 @@ export default function Profile() {
   const [swapHistory, setSwapHistory]=useState([]);
   const [purchaseHistory,setPurchaseHistory]=useState([]);
   const [isOwnProfile,setIsOwnProfile]=useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
   const navigate=useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      setShowLoginPrompt(true);
+    }
+  }, [token]);
 
   // Fetch user profile data
   const fetchUserProfile = async () => {
@@ -119,6 +128,13 @@ export default function Profile() {
    
   }
 
+  if (!token) {
+    return (
+      <>
+        {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />}
+      </>
+    );
+  }
 
   if (error) {
     return <ErrorPage message={error}/>

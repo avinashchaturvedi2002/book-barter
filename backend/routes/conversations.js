@@ -9,10 +9,18 @@ const router = express.Router();
 
 router.get("/unseen-count", verifyToken, async (req, res) => {
   try {
-    console.log("check");
     const userId = req.user._id;
 
+    // Step 1: Get all conversation IDs where the user is a participant
+    const conversations = await Conversation.find({
+      participants: userId,
+    }).select("_id");
+
+    const conversationIds = conversations.map((c) => c._id);
+
+    // Step 2: Count unseen messages in those conversations only
     const count = await Message.countDocuments({
+      conversationId: { $in: conversationIds },
       seenBy: { $ne: userId },
       sender: { $ne: userId },
     });
@@ -23,6 +31,7 @@ router.get("/unseen-count", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // Get user conversations
 router.get("/", verifyToken, async (req, res) => {

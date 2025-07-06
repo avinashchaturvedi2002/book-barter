@@ -19,7 +19,8 @@ const notificationSchema = new mongoose.Schema({
       "book_returned",
       "exchange_request",
       "purchase_request",
-      "otp_initiated"
+      "otp_initiated",
+      "new_rating"
     ],
     required: true,
   },

@@ -30,6 +30,9 @@ export default function Chat() {
   const typingTimeoutRef = useRef(null);
   const [error, setError] = useState(null);
 
+  const isMobile = window.innerWidth < 640;
+  const [showSidebar, setShowSidebar] = useState(isMobile && !userId);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -196,30 +199,60 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const isMobile = window.innerWidth < 640;
+  const openChat = (uid) => {
+    navigate(`/chat/${uid}`);
+    if (isMobile) setShowSidebar(false);
+  };
+
+  const backToSidebar = () => {
+    navigate("/chat");
+    if (isMobile) setShowSidebar(true);
+  };
 
   if (error) return <ErrorPage message={error} />;
 
   return (
-    <div className="max-w-6xl mx-auto px-2 py-4 grid grid-cols-1 sm:grid-cols-4 gap-4">
-  {!userId || !isMobile ? (
-    <ChatSidebar users={users} currentUserId={decoded?.id} />
-  ) : null}
+  <div className="max-w-6xl mx-auto px-2 py-4">
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      {/* Sidebar */}
+      {(window.innerWidth >= 640 || showSidebar) && (
+        <div className="sm:col-span-1">
+          <ChatSidebar
+            users={users}
+            currentUserId={decoded?.id}
+            onChatSelect={openChat}
+          />
+        </div>
+      )}
 
-  {userId ? (
-    <div className="col-span-3">
-      <div className="bg-white shadow-lg rounded-lg flex flex-col h-[80vh] border border-gray-200">
-        <ChatHeader userId={userId} isMobile={isMobile} isOnline={isOnline} rPic={rPic} receiver={receiver} />
-        <MessageList messages={messages} isTyping={isTyping} />
-        <MessageInput input={input} onChange={handleTyping} onSend={sendMessage} />
-      </div>
+      {/* Chat */}
+      {(window.innerWidth >= 640 || (!showSidebar && userId)) && (
+        <div className="col-span-3 w-full">
+          {userId ? (
+            <div className="bg-white shadow-lg rounded-lg flex flex-col h-[80vh] border border-gray-200">
+              <ChatHeader
+                userId={userId}
+                isMobile={isMobile}
+                isOnline={isOnline}
+                rPic={rPic}
+                receiver={receiver}
+                onBack={backToSidebar}
+              />
+              <MessageList messages={messages} isTyping={isTyping} />
+              <MessageInput
+                input={input}
+                onChange={handleTyping}
+                onSend={sendMessage}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-[80vh] border rounded-lg bg-white">
+              <p className="text-gray-500">Select a chat to start a conversation</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
-  ) : (
-    <div className="col-span-3 flex items-center justify-center h-[80vh] border rounded-lg bg-white">
-      <p className="text-gray-500">Select a chat to start a conversation</p>
-    </div>
-  )}
-</div>
-
-  );
+  </div>
+);
 }
