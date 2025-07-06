@@ -83,9 +83,7 @@ useEffect(() => {
 
   if (jwt) {
     showLoader("Signing you in…");
-    rememberMe
-      ? localStorage.setItem("token", jwt)
-      : sessionStorage.setItem("token", jwt);
+     localStorage.setItem("token", jwt)
 
     setToken(jwt);
     fetchUserProfile(jwt).then(() => {
