@@ -1,6 +1,14 @@
 export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
   const tabs = ["uploaded", "history", "rating", ...(isOwnProfile ? ["borrowed", "lent"] : [])];
 
+  const tabLabels = {
+    uploaded: "Uploaded Books",
+    history: "Swap History",
+    rating: "User Ratings",
+    borrowed: "Borrowed Books",
+    lent: "Lent Books",
+  };
+
   return (
     <div className="mb-6">
       {/* Mobile */}
@@ -12,7 +20,7 @@ export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
         >
           {tabs.map((tab) => (
             <option key={tab} value={tab}>
-              {tab.charAt(0).toUpperCase() + tab.slice(1)} Books
+              {tabLabels[tab]}
             </option>
           ))}
         </select>
@@ -30,11 +38,7 @@ export default function ProfileTabs({ activeTab, setActiveTab, isOwnProfile }) {
                 : "text-gray-500 hover:text-blue-500"
             }`}
           >
-            {tab === "uploaded" && "Uploaded Books"}
-            {tab === "history" && "Swap History"}
-            {tab === "rating" && "User Ratings"}
-            {tab === "borrowed" && "Borrowed Books"}
-            {tab === "lent" && "Lent Books"}
+            {tabLabels[tab]}
           </button>
         ))}
       </div>
