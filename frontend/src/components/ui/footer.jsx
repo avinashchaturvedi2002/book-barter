@@ -65,6 +65,11 @@ export default function Footer() {
             </div>
            
           </div>
+          <div className="flex space-x-2">
+              <Link to={`/terms`}>Terms and Conditions</Link>
+          <Link to={'/privacy'}>Privacy Policy</Link>
+          </div>
+          
         </div>
 
         {/* Right: Buy Me a Coffee */}

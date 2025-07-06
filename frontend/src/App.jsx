@@ -7,6 +7,8 @@ import Profile from "./pages/Profile"
 import Chat from "./pages/Chat"
 import MyRequest from "./pages/MyRequest"
 import Login from "./pages/Login"
+import TermsOfService from "./pages/TermsOfService"
+import PrivacyPolicy from "./pages/PrivacyPolicy"
 import Register from "./pages/Register"
 import AboutPage from "./pages/AboutUs"
 import { Routes, Route } from "react-router-dom"
@@ -55,6 +57,9 @@ function App() {
           <Route path="/about" element={<AboutPage />}/>
           <Route path="/forgot-password" element={<ForgotPassword/>}/>
           <Route path="/reset-password" element={<ResetPassword/>}/>
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+
         </Routes>
       </main>
 

@@ -5,11 +5,13 @@ import bookimg from "../assets/bi-removebg-preview.png";
 import { useAuth } from "../context/AuthContext"; // adjust path
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
+import { useRef } from "react";
 
 
 
 
 function Login() {
+  const codeClientRef = useRef(null);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,54 +63,39 @@ function Login() {
   }
 };
 
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const jwt = params.get('jwt');
+  const error = params.get('error');
 
-  const handleGoogleResponse = async (response) => {
-    showLoader("Logging You in.....")
-    try {
-      const res = await axios.post(`${backendUrl}/api/auth/google`, {
-        token: response.credential,
-      });
-
-      
-      const token = res.data.token;
-      console.log(res.data);
-
-      rememberMe
-        ? localStorage.setItem("token", token)
-        : sessionStorage.setItem("token", token);
-
-        setToken(token)
-      setUser(res.data.user)
-
-      navigate("/");
-    } catch (err) {
-      setError(err?.response?.data?.message || 
-  err?.message ||                 
-  "Something went wrong.")
-    }
-    finally{
-      hideLoader();
-    }
-  };
-
-  useEffect(() => {
-    if (window.google) {
-      window.google.accounts.id.initialize({
-  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-  callback: handleGoogleResponse,
-});
-
-window.google.accounts.id.renderButton(
-  document.getElementById("google-signin-btn"),
-  {
-    theme: "outline",
-    size: "large",
-    shape: "rectangular",
+  if (jwt) {
+    rememberMe ? localStorage.setItem("token", jwt) : sessionStorage.setItem("token", jwt);
+    setToken(jwt);
+    setUser("Google User"); // Or call backend to fetch user profile
+    navigate("/");
   }
-);
 
-    }
-  }, []);
+  if (error) {
+    setError("Google authentication failed. Try again.");
+  }
+}, []);
+
+
+
+ useEffect(() => {
+  if (window.google) {
+    codeClientRef.current = window.google.accounts.oauth2.initCodeClient({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      ux_mode: 'redirect',
+      redirect_uri: `${import.meta.env.VITE_BACKEND_URL}/api/auth/google/cb`, // must be whitelisted in Google Cloud
+    });
+  }
+}, []);
+
+const handleGoogleClick = () => {
+  codeClientRef.current.requestCode();
+};
 
   return (
     <div className="min-h-screen dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-white">
@@ -192,7 +179,17 @@ window.google.accounts.id.renderButton(
               <hr className="w-full border-slate-300" />
             </div>
 
-            <div id="google-signin-btn" className="flex justify-center" />
+            <button
+  type="button"
+  onClick={handleGoogleClick}
+  className="w-full py-2 px-4 rounded bg-white border flex items-center justify-center gap-2 hover:shadow-md"
+>
+  <img src="/google-icon-logo-svgrepo-com.svg" alt="" className="h-5 w-5" />
+  <span className="font-medium text-slate-700 dark:text-slate-200">
+    Continue with Google
+  </span>
+</button>
+
           </form>
         </div>
       </div>
