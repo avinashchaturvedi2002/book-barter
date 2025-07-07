@@ -21,8 +21,12 @@ import ForgotPassword from "./pages/ForgotPassword"
 import ResetPassword from "./pages/ResetPassword"
 import InstallPrompt from "./components/util/InstallPrompt"
 import { useEffect } from "react"
+import { useLocation } from "react-router-dom"
 import HowItWorksPage from "./pages/HowItWorks"
 function App() {
+  const location = useLocation();
+  const isChatRoute = location.pathname.startsWith("/chat");
+
   useEffect(() => {
   const handler = (e) => {
     console.log("beforeinstallprompt event fired!");
@@ -67,7 +71,7 @@ function App() {
 
       <Footer />
       <ToastContainer position="top-center" autoClose={2000} />
-      <InstallPrompt/>
+      {!isChatRoute && <InstallPrompt />}
     </div>
   );
 }

@@ -1,9 +1,20 @@
 import { Button } from "../components/ui/button";
-import {  Bell, Repeat2, Users, Lock } from "lucide-react";
+import {  Bell, Repeat2, Users, Lock, Share, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function LandingPage() {
+  const [showIosPrompt, setShowIosPrompt] = useState(false);
+
+  useEffect(() => {
+    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isInStandalone = window.matchMedia("(display-mode: standalone)").matches;
+
+    if (isIos && !isInStandalone) {
+      setShowIosPrompt(true);
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-white">
       
@@ -68,6 +79,34 @@ export default function LandingPage() {
   </div>
 </section>
 
+    {showIosPrompt && (
+  <motion.div
+    initial={{ y: 60, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    role="dialog"
+    aria-live="polite"
+    className="fixed inset-x-0 bottom-6 flex justify-center z-50 pointer-events-none"
+  >
+    <div className="pointer-events-auto bg-white dark:bg-gray-900 shadow-2xl rounded-2xl px-5 py-4 max-w-sm w-full mx-4">
+      <button
+        onClick={() => setShowIosPrompt(false)}
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+        aria-label="Dismiss install instructions"
+      >
+        <X size={18} />
+      </button>
+
+      <div className="flex items-start space-x-3">
+        <Share size={20} className="mt-0.5 shrink-0 text-blue-600" />
+        <p className="text-sm leading-5 text-gray-900 dark:text-gray-100">
+          <strong className="font-semibold">Install Book Barter</strong> on your iPhone:<br />
+          tap <span className="font-medium">Share</span> and then
+          <span className="font-medium"> “Add to Home Screen”</span>.
+        </p>
+      </div>
+    </div>
+  </motion.div>
+)}
     
     </div>
   );
