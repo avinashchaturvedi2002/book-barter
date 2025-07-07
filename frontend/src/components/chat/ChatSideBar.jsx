@@ -4,6 +4,15 @@ export default function ChatSidebar({ users, currentUserId, onChatSelect }) {
   const navigate = useNavigate();
   const { userId } = useParams();
 
+  /* 2️⃣ Render a placeholder instead of returning early */
+  if (users.length === 0) {
+    return (
+      <div className="border rounded-md bg-white h-[80vh] flex items-center justify-center text-sm text-gray-500">
+        No conversations yet
+      </div>
+    );
+  }
+
   const openChat = (otherId) => {
     if (onChatSelect) onChatSelect(otherId);
     navigate(`/chat/${otherId}`);
@@ -40,9 +49,9 @@ export default function ChatSidebar({ users, currentUserId, onChatSelect }) {
               <p className="text-sm font-medium">
                 {other.firstName} {other.lastName}
               </p>
-              <p className="text-xs text-gray-500 truncate max-w-[160px]">
-                {conv.lastMessage?.content || "No messages yet"}
-              </p>
+              <p className="text-xs text-gray-500 truncate">
+  {String(conv.lastMessage?.content ?? "No messages yet")}
+ </p>
             </div>
 
             {conv.unseenCount > 0 && (
