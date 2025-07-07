@@ -5,6 +5,7 @@ import ExchangeRequest from "../models/ExchangeRequest.js";
 import PurchaseRequest from "../models/PurchaseRequest.js";
 import { emitNotification } from "../utils/emitNotifications.js";
 import {getIO} from "../socket.js"
+import { sendEmail } from "../utils/sendEmail.js";
 
 
 
@@ -181,6 +182,14 @@ const exchangeBooks = async (req, res) => {
   exchangeId: exchangeRequest._id,
     
   }
+);
+  
+  const bookOwner = await User.findById(requestedBook.owner).lean();
+
+await sendEmail(
+  bookOwner.email,
+  "Book Barter • New Exchange Request",
+  `Hi ${bookOwner.firstName},\n\n${req.user.firstName} has requested to exchange books with you.\n\nBook Requested: ${requestedBook.title}\nBook Offered: ${offeredBook.title}\nDuration: ${durationInDays} days\n\nLogin to Book Barter to accept, reject or counter the request.\n\nHappy Swapping! 📚`
 );
 
   console.log("notification emitted");

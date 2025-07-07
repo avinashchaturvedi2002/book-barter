@@ -129,6 +129,22 @@ export const validateExchangeOtp = async (req, res) => {
       await Book.findByIdAndUpdate(exchange.offeredBook._id, { available: false });
     }
 
+    const borrower = await User.findById(exchange.requestedBy);
+const lender = await User.findById(exchange.requestedFrom);
+
+await sendEmail(
+  borrower.email,
+  "Book Barter • Exchange Confirmed",
+  `Hi ${borrower.firstName},\n\nYour exchange for "${exchange.requestedBook.title}" has been successfully confirmed.\n\nReturn by: ${exchange.returnBy.toDateString()}\n\n📚 Book Barter Team`
+);
+
+await sendEmail(
+  lender.email,
+  "Book Barter • Exchange Confirmed",
+  `Hi ${lender.firstName},\n\nYou have successfully lent/swapped your book "${exchange.requestedBook.title}".\n\n📚 Book Barter Team`
+);
+
+
     const successMsg =
   exchange.status === "lent_on_security"
     ? "Lending on security completed!"
@@ -259,8 +275,25 @@ if (now > expiryTime) {
     exchange.returnOtp = undefined;
     exchange.returnOtpGeneratedAt = undefined;
     await exchange.save();
+
     await Book.findByIdAndUpdate(exchange.requestedBook._id, { available: true });
     await Book.findByIdAndUpdate(exchange.offeredBook, { available: true });
+    const borrower = await User.findById(exchange.requestedBy);
+const lender = await User.findById(exchange.requestedFrom);
+
+await sendEmail(
+  borrower.email,
+  "Book Barter • Book Return Completed",
+  `Hi ${borrower.firstName},\n\nYou have successfully returned "${exchange.requestedBook.title}".\n\n📚 Thank you for using Book Barter!`
+);
+
+await sendEmail(
+  lender.email,
+  "Book Barter • Book Received Back",
+  `Hi ${lender.firstName},\n\n"${exchange.requestedBook.title}" has been returned by the borrower.\nPlease confirm the condition and proceed with any refund if applicable.\n\n📚 Book Barter Team`
+);
+
+    
     const io=getIO();
     await emitNotification(io, {
   toUserId: exchange.requestedBy,
@@ -384,6 +417,22 @@ export const validatePurchaseOtp=async(req,res)=>{
     await purchase.save();
 
     await Book.findByIdAndUpdate(purchase.book._id, { available: false });
+
+    const buyer = await User.findById(purchase.buyer);
+const seller = await User.findById(purchase.seller);
+
+await sendEmail(
+  buyer.email,
+  "Book Barter • Purchase Completed",
+  `Hi ${buyer.firstName},\n\nYour purchase of "${purchase.book.title}" is successful! Enjoy reading 📚\n\nThanks for using Book Barter.`
+);
+
+await sendEmail(
+  seller.email,
+  "Book Barter • Book Sold",
+  `Hi ${seller.firstName},\n\nYou have successfully sold your book "${purchase.book.title}".\nPlease ensure handover and mark the delivery complete.\n\n📚 Book Barter Team`
+);
+
 
     const io=getIO();
 await emitNotification(io, {

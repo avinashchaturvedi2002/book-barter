@@ -40,6 +40,12 @@ const registerUser = async (req, res) => {
 
     await newUser.save();
 
+    await sendEmail(
+  email,
+  "Welcome to Book Barter!",
+  `Hi ${firstName},\n\nThanks for joining Book Barter! You can now explore, share, and exchange books with your peers.\n\nHappy Reading! 📚`
+);
+
     return res.status(201).json({ message: "User registered successfully!" });
   } catch (error) {
     console.error("Register Error:", error);
@@ -213,6 +219,12 @@ const resetPassword = async (req, res) => {
     user.resetPasswordExpires = undefined;
 
     await user.save();
+    await sendEmail(
+  email,
+  "Book Barter • Password Changed",
+  `Hi ${user.firstName},\n\nYour password was successfully changed. If this wasn't you, please reset your password immediately.\n\nStay safe!`
+);
+
 
     res.status(200).json({ message: "Password has been reset successfully." });
   } catch (err) {
@@ -268,6 +280,13 @@ const pwaGoogleHandling=async (req, res) => {
     profilePicture: picture,
     fromGoogle: true,
   });
+
+  await sendEmail(
+  email,
+  "Welcome to Book Barter!",
+  `Hi ${firstName},\n\nYour account was created via Google on Book Barter. You can now browse and exchange books!\n\nVisit us anytime: ${process.env.FRONTEND_URL}`
+);
+
 }
 
 

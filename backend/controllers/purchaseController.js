@@ -2,6 +2,7 @@ import PurchaseRequest from "../models/PurchaseRequest.js";
 import Book from "../models/Book.js"
 import { getIO } from "../socket.js";
 import { emitNotification } from "../utils/emitNotifications.js";
+import { sendEmail } from "../utils/sendEmail.js";
 const sendPurchaseRequest=async(req,res)=>{
   const userId=req.user._id;
   const {bookId}=req.body
@@ -21,6 +22,15 @@ const sendPurchaseRequest=async(req,res)=>{
     {
       return res.status(400).json({message:"You cant buy your own book"})
     }
+    const existingRequest = await PurchaseRequest.findOne({
+  book: bookId,
+  buyer: userId,
+  status: { $in: ["pending", "accepted"] }, // still active
+});
+
+if (existingRequest) {
+  return res.status(400).json({ message: "You already have an active purchase request for this book." });
+}
     const purchaseRequest=new PurchaseRequest({
       book:requestedBook._id,
       buyer:userId,
@@ -28,6 +38,12 @@ const sendPurchaseRequest=async(req,res)=>{
       status:"pending",
     })
     await purchaseRequest.save()
+    const seller = await User.findById(requestedBook.owner);
+await sendEmail(
+  seller.email,
+  "📘 Book Barter: Purchase Request Received",
+  `${req.user.firstName} wants to buy your book "${requestedBook.title}".\nLogin to respond!`
+);
     const io=getIO();
     await emitNotification(io,{
       toUserId:requestedBook.owner.toString(),
@@ -82,7 +98,7 @@ const rejectPurchaseRequest=async(req,res)=>{
     }
 
     // Ensure the logged-in user owns the requested book
-    if (purchase.book.seller.toString() !== userId.toString()) {
+    if (purchase.seller.toString() !== userId.toString()) {
       return res.status(403).json({ message: "You are not authorized to reject this request." });
     }
 
@@ -93,7 +109,7 @@ const rejectPurchaseRequest=async(req,res)=>{
   toUserId : purchase.buyer,
   type     : "request_rejected",
   message  : "Your purchase request was rejected.",
-  exchangeId: purchase._id
+  purchaseId: purchase._id
 });
 
   res.status(200).json({ message: "Purchase request rejected successfully.", purchase });

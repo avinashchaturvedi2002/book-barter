@@ -5,6 +5,7 @@ import razorpay from "../utils/razorpay.js";
 import crypto from "crypto"
 import { emitNotification } from "../utils/emitNotifications.js";
 import {getIO} from "../socket.js"
+import { sendEmail } from "../utils/sendEmail.js";
 
 
 const acceptExchangeRequest = async (req, res) => {
@@ -46,6 +47,13 @@ const acceptExchangeRequest = async (req, res) => {
   exchangeId: exchange._id
 });
 
+    const borrower = await User.findById(exchange.requestedBy);
+await sendEmail(
+  borrower.email,
+  "Book Barter • Exchange Request Accepted",
+  `Hi ${borrower.firstName},\n\nYour exchange request for "${exchange.requestedBook.title}" has been accepted. Head over to Book Barter to proceed with the next steps.\n\n📚 Book Barter Team`
+);
+
     res.status(200).json({ message: "Exchange request accepted successfully.", exchange });
   } catch (error) {
     console.error("Error accepting exchange request:", error);
@@ -82,6 +90,14 @@ const rejectExchangeRequest=async (req, res) => {
   message  : "Your exchange request was rejected.",
   exchangeId: exchange._id
 });
+
+    const borrower = await User.findById(exchange.requestedBy);
+await sendEmail(
+  borrower.email,
+  "Book Barter • Exchange Request Rejected",
+  `Hi ${borrower.firstName},\n\nUnfortunately, your exchange request for "${exchange.requestedBook.title}" was rejected. Feel free to explore other books or try again with a different offer.\n\n📚 Book Barter Team`
+);
+
 
     res.status(200).json({ message: "Exchange request rejected successfully.", exchange });
   } catch (error) {
@@ -134,7 +150,15 @@ const counterExchangeOffer = async (req, res) => {
   type     : "counter_offer",
   message  : "You have a new counter-offer!",
   exchangeId: exchange._id
-});
+}); 
+
+    const borrower = await User.findById(exchange.requestedBy);
+await sendEmail(
+  borrower.email,
+  "Book Barter • New Counter-Offer",
+  `Hi ${borrower.firstName},\n\nThe owner of "${exchange.requestedBook.title}" has sent a counter-offer. Log in to Book Barter to view and respond.\n\n📚 Book Barter Team`
+);
+
     res.status(200).json({ message: "Counter-offer sent.", exchange });
   } catch (err) {
     console.error("Counter-offer error:", err);
@@ -191,7 +215,15 @@ const cancelExchangeRequest = async (req, res) => {
   type     : "request_cancelled",
   message  : "The borrower cancelled their request.",
   exchangeId: exchange._id
-});
+}); 
+
+    const owner = await User.findById(exchange.requestedFrom);
+await sendEmail(
+  owner.email,
+  "Book Barter • Exchange Request Cancelled",
+  `Hi ${owner.firstName},\n\nThe borrower has cancelled the exchange request for your book. You can explore other requests on Book Barter.\n\n📚 Book Barter Team`
+);
+
 
     res.status(200).json({ message: "Exchange request cancelled by borrower.", exchange });
   } catch (error) {
@@ -236,6 +268,14 @@ const offerSecurityDeposit = async (req, res) => {
   message  : `Lender is willing to lend on ₹${ex.securityAmount} security.`,
   exchangeId: ex._id
 });
+
+    const borrower = await User.findById(ex.requestedBy);
+await sendEmail(
+  borrower.email,
+  "Book Barter • Security Deposit Offered",
+  `Hi ${borrower.firstName},\n\nThe lender has offered to lend you "${ex.requestedBook.title}" in exchange for a security deposit of ₹${ex.securityAmount}.\n\nLog in to proceed with the deposit.\n\n📚 Book Barter Team`
+);
+
     // 4️⃣  Done
     res.json({
       message: "Security‐deposit offer sent to borrower.",
@@ -316,6 +356,14 @@ const verifySecurityPayment = async (req, res) => {
   message  : "Security deposit has been paid by borrower.",
   exchangeId: ex._id
 });
+
+    const lender = await User.findById(ex.requestedFrom);
+await sendEmail(
+  lender.email,
+  "Book Barter • Security Deposit Paid",
+  `Hi ${lender.firstName},\n\nThe borrower has successfully paid the security deposit for "${ex.requestedBook.title}". You can now hand over the book and track the transaction.\n\n📚 Book Barter Team`
+);
+
 
     return res.status(200).json({ message: "Security deposit recorded", exchange: ex });
   } catch (err) {

@@ -12,7 +12,9 @@ import cors from "cors";
 import http from "http";
 import { setupSocket } from "./socket.js";
 import returnReminderJob from "./cron/returnReminderJob.js";
+import returnOverdueReminderJob from "./cron/returnOverdueReminderJob.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js"
+
 
 dotenv.config();
 const app = express();
@@ -62,6 +64,7 @@ app.use("/api/notifications",notificationRoutes)
 app.use("/api/purchase",purchaseRoutes)
 
 returnReminderJob.start()
+returnOverdueReminderJob.start();
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
