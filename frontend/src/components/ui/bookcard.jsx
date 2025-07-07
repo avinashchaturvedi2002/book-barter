@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
-export default function BookCard({ book, onActionClick, isRequested = false, ownUser = false, showOwner=true }) {
+import { XCircle } from "lucide-react";
+export default function BookCard({ book, onActionClick, isRequested = false, ownUser = false, showOwner=true, onDelete }) {
 
   return (
     
-    <div className="border rounded-lg p-4 shadow hover:shadow-md transition flex flex-col h-full">
+    <div className="border relative rounded-lg p-4 shadow hover:shadow-md transition flex flex-col h-full">
       {/* Book Image */}
+      {ownUser && onDelete && (
+        <button
+          onClick={onDelete}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+          title="Delete this book"
+        >
+          <XCircle size={26} />
+        </button>
+      )}
       <img
         src={book.imageUrl}
         alt={book.title}
@@ -63,7 +73,7 @@ export default function BookCard({ book, onActionClick, isRequested = false, own
             disabled={!book.available}
             onClick={() => onActionClick(book)}
           >
-            {book.mode === "lend" ? "Request to Borrow" : `Buy Now for ₹ ${book.sellingPrice} `}
+            {book.mode === "lend" ? "Request to Exchange" : `Buy Now for ₹ ${book.sellingPrice} `}
           </button>
         )
       )}

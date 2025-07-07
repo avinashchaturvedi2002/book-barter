@@ -324,9 +324,13 @@ export default function UploadBook() {
             </div>
 
             {/* City + coordinates */}
-<div>
+
   
-  <CityAutocompleteInput
+<div>
+  <div>
+    <label className="block text-sm font-medium mb-1">City</label>
+
+          <CityAutocompleteInput
   onSelect={(option) => {
     setBookData((prev) => ({
       ...prev,
@@ -339,6 +343,8 @@ export default function UploadBook() {
   }}
 />
 
+  </div>
+  
 
   {/* fallback “Use my location” button remains unchanged */}
   <button

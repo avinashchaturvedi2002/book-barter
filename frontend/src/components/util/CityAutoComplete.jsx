@@ -72,6 +72,13 @@ export default function CityAutocompleteInput({ onSelect }) {
     return () => clearTimeout(delay);
   }, [query, hasSelected]);
 
+  useEffect(() => {
+  if (!query.trim()) {
+    setHasSelected(false);
+    onSelect(""); // reset city filter if input is cleared
+  }
+}, [query]);
+
   const handleSelect = (option) => {
     setQuery(option.label);
     setHasSelected(true);
@@ -81,7 +88,7 @@ export default function CityAutocompleteInput({ onSelect }) {
 
   return (
     <div className="relative" ref={wrapperRef}>
-      <label className="block text-sm font-medium mb-1">City</label>
+      
       <input
         type="text"
         value={query}

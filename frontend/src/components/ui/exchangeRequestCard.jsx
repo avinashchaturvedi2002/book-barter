@@ -36,7 +36,7 @@ export default function ExchangeRequestCard({ req, onAccept, onReject, onCounter
               <ActionButton label="Accept" variant="green" onClick={() => onAccept(_id)} />
               <ActionButton label="Reject" variant="red" onClick={() => onReject(_id)} />
               <ActionButton label="Explore Other Books" variant="yellow" onClick={() => onCounter(_id, requestedBy._id)} />
-              <ActionButton label="Lend for security money" variant="green" onClick={() => onLendSecurity(_id)} subtle />
+              <ActionButton label="Lend for security money" variant="green" onClick={() => onLendSecurity(_id)} />
             </>
           ) : (
             (status === "accepted" || status === "security_paid") && (

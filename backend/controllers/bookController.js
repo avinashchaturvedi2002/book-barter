@@ -2,6 +2,7 @@ import cloudinary from "../utils/cloudinary.js";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import ExchangeRequest from "../models/ExchangeRequest.js";
+import PurchaseRequest from "../models/PurchaseRequest.js";
 import { emitNotification } from "../utils/emitNotifications.js";
 import {getIO} from "../socket.js"
 
@@ -99,7 +100,12 @@ if (req.user) {
     if (author) filters.author = author;
     if (category) filters.category = category;
     if (title) filters.title = { $regex: title, $options: "i" };
-    if(city) filters.city={$regex: city,$options: "i"}
+    if (city) {
+      console.log("CITY FILTER:", city);
+  const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  filters.city = { $regex: escapedCity, $options: "i" };
+}
+
 
     if (radius && lat && lng) {
       filters.location = {
@@ -185,4 +191,55 @@ const exchangeBooks = async (req, res) => {
   }
 };
 
-export {addBook,exploreBooks,exchangeBooks}
+
+const deleteBook = async (req, res) => {
+  try {
+    const userId = req.user._id; // from auth middleware
+    const { bookId } = req.params;
+
+    const book = await Book.findById(bookId);
+    if (!book) return res.status(404).json({ message: "Book not found." });
+
+    // Only the owner can delete
+    if (book.owner.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "You are not authorized to delete this book." });
+    }
+
+    // Prevent deletion if involved in ongoing exchange requests
+    const exchangeInUse = await ExchangeRequest.findOne({
+      $or: [{ offeredBook: bookId }, { requestedBook: bookId }],
+      status: { $nin: ["completed", "cancelled", "rejected"] }
+    });
+
+    if (exchangeInUse) {
+      return res.status(400).json({ message: "This book is part of an active exchange request and cannot be deleted." });
+    }
+
+    // Prevent deletion if involved in ongoing purchase requests
+    const purchaseInUse = await PurchaseRequest.findOne({
+      book: bookId,
+      status: { $nin: ["completed", "cancelled", "rejected"] }
+    });
+
+    if (purchaseInUse) {
+      return res.status(400).json({ message: "This book is part of an active purchase request and cannot be deleted." });
+    }
+
+    // Delete book
+    await Book.findByIdAndDelete(bookId);
+
+    // Remove from user's book list
+    await User.findByIdAndUpdate(userId, {
+      $pull: { books: bookId }
+    });
+
+    res.json({ message: "Book deleted successfully." });
+
+  } catch (err) {
+    console.error("Error deleting book:", err);
+    res.status(500).json({ message: "Server error while deleting book." });
+  }
+};
+
+
+export {addBook,exploreBooks,exchangeBooks, deleteBook}

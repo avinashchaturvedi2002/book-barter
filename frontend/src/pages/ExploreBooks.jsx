@@ -7,6 +7,11 @@ import PurchaseModal from "../modals/PurchaseModal";
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
 import LoginPromptModal from "../modals/LoginPromptModal";
+import { useDebounce } from "../hooks/useDebounce";
+import CityAutocompleteInput from "../components/util/CityAutoComplete";
+import { Search } from "lucide-react";
+
+
 
 export default function ExploreBooks() {
    const [books, setBooks] = useState([]);
@@ -28,6 +33,10 @@ export default function ExploreBooks() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [error,setError]=useState(null);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedRadius = useDebounce(radius, 500);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
 
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
   const navigate = useNavigate();
@@ -83,17 +92,17 @@ useEffect(()=>{
   
 useEffect(() => {
   const fetchBooks = async () => {
-    showLoader("Getting the Books...")
+    showLoader("Getting the Books...");
     try {
       const query = new URLSearchParams();
 
       if (filterType) query.append("type", filterType === "buy" ? "sell" : "lend");
       if (filterAuthor) query.append("author", filterAuthor);
       if (filterCategory) query.append("category", filterCategory);
-      if (searchTerm) query.append("title", searchTerm);
+      if (debouncedSearch) query.append("title", debouncedSearch);
       if (filterCity) query.append("city", filterCity);
-      if (radius && userLocation) {
-        query.append("radius", radius);
+      if (debouncedRadius && userLocation) {
+        query.append("radius", debouncedRadius);
         query.append("lat", userLocation.latitude);
         query.append("lng", userLocation.longitude);
       }
@@ -108,29 +117,51 @@ useEffect(() => {
       );
 
       const data = await res.json();
-      console.log(data);
       setBooks(data);
+
       if (
-   !filterType && !filterAuthor && !filterCategory &&
-   !filterCity && !searchTerm && !radius
-  ) {
-    setAllAuthors([...new Set(data.map(b => b.author))]);
-    setAllCategories([...new Set(data.map(b => b.category))]);
-    setAllCities([...new Set(data.map(b => b.city).filter(Boolean))]);
-  }
+        !filterType && !filterAuthor && !filterCategory &&
+        !filterCity && !searchTerm && !radius
+      ) {
+        setAllAuthors([...new Set(data.map(b => b.author))]);
+        setAllCategories([...new Set(data.map(b => b.category))]);
+        setAllCities([...new Set(data.map(b => b.city).filter(Boolean))]);
+      }
     } catch (err) {
-      setError(err?.response?.data?.message || 
-  err?.message ||                 
-  "Something went wrong.")
+      setError(err?.response?.data?.message || err?.message || "Something went wrong.");
     } finally {
       hideLoader();
     }
   };
 
-  if (userLocation || !radius) {
-    fetchBooks(); // only run when we have coordinates (or if no radius filter)
+  if (userLocation || !debouncedRadius) {
+    fetchBooks();
   }
-}, [filterType, filterAuthor, filterCategory, searchTerm, filterCity, radius, userLocation]);
+}, [
+  filterType,
+  filterAuthor,
+  filterCategory,
+  debouncedSearch,
+  filterCity,
+  debouncedRadius,
+  userLocation
+]);
+
+
+const onSelectCity = (option) => {
+  if (!option || typeof option.label !== "string") {
+    setFilterCity("");
+    return;
+  }
+
+  const cityOnly = option.label.split(",")[0].trim();
+  if (filterCity !== cityOnly) {
+    setFilterCity(cityOnly);
+  } else {
+    setFilterCity("");
+    setTimeout(() => setFilterCity(cityOnly), 0); // trigger re-fetch even if same
+  }
+};
 
 
   
@@ -205,9 +236,35 @@ useEffect(() => {
     <div className="bg-gradient-to-b from-white to-blue-50">
       <div className="min-h-screen px-4 py-8 max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold mb-4">Explore Books</h2>
+        <div className="relative mb-4">
+  <input
+    type="text"
+    placeholder="Search by book title..."
+    className="w-full rounded-full border outline-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 ease-in-out px-5 py-3 pr-12 shadow-sm text-base md:text-lg dark:bg-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  <Search
+    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none"
+    size={20}
+  />
+</div>
+
+
+        {/* Toggle Button for Mobile */}
+<div className="md:hidden mb-4">
+  <button
+    onClick={() => setShowMobileFilters((prev) => !prev)}
+    className="w-full bg-blue-600 text-white py-2 px-4 rounded-full shadow"
+  >
+    {showMobileFilters ? "Hide Filters" : "Show Filters"}
+  </button>
+</div>
+
+      
 
         {/* Filters */}
-        <div className="mb-6 flex flex-col md:flex-row md:items-center md:space-x-6 space-y-4 md:space-y-0">
+        <div className="hidden md:flex mb-6  flex-col md:flex-row md:items-center md:space-x-6 space-y-4 md:space-y-0">
           <div className="flex-1">
             <label className="p-2 block font-semibold text-gray-700">Looking for?</label>
             <CustomDropdown
@@ -236,14 +293,14 @@ useEffect(() => {
               onChange={setFilterCategory}
             />
           </div>
-          <div className="flex-1">
+          
+  
+         <div className="flex-1">
   <label className="p-2 block font-semibold text-gray-700">City</label>
-  <CustomDropdown
-    options={cityOptions}
-    value={filterCity}
-    onChange={setFilterCity}
-  />
+  <CityAutocompleteInput onSelect={onSelectCity} />
 </div>
+
+
 
           <div className="flex-1">
             <label className="p-2 block font-semibold text-gray-700">
@@ -260,17 +317,87 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search by book title..."
-          className="w-full rounded-full border px-5 py-3 shadow-sm mb-4"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        
+        
 
+              {showMobileFilters && (
+  <div className="md:hidden mb-6 space-y-4">
+    <div>
+      <label className="block font-semibold text-gray-700">Looking for?</label>
+      <CustomDropdown
+        options={[
+          { id: "", title: "-- Select --" },
+          { id: "buy", title: "Buy Book" },
+          { id: "exchange", title: "Exchange Book" },
+        ]}
+        value={filterType}
+        onChange={setFilterType}
+      />
+    </div>
+    <div>
+      <label className="block font-semibold text-gray-700">Author</label>
+      <CustomDropdown options={authorOptions} value={filterAuthor} onChange={setFilterAuthor} />
+    </div>
+    <div>
+      <label className="block font-semibold text-gray-700">Category</label>
+      <CustomDropdown options={categoryOptions} value={filterCategory} onChange={setFilterCategory} />
+    </div>
+    <div>
+      <label className="block font-semibold text-gray-700">City</label>
+      <CityAutocompleteInput onSelect={onSelectCity} />
+    </div>
+    <div>
+      <label className="block font-semibold text-gray-700">
+        Radius: <span className="text-blue-600">{radius} km</span>
+      </label>
+      <input
+        type="range"
+        min={1}
+        max={500}
+        value={radius}
+        onChange={(e) => setRadius(e.target.value)}
+        className="w-full"
+      />
+    </div>
+  </div>
+)}
+
+         {filteredBooks.length === 0 && (
+  <div className="flex flex-col items-center justify-center text-center mt-16 mb-32 px-4">
+    <img
+      src="/image.png" 
+      alt="No books found"
+      className="w-48 h-48 mb-6 opacity-80"
+    />
+    <h3 className="text-2xl font-bold text-gray-700 mb-2">
+      No Books Found
+    </h3>
+    <p className="text-gray-500 mb-4 max-w-md">
+      We couldn’t find any books that match your filters.
+      {filterCity && (
+        <> Try adjusting your city or expanding the radius.</>
+      )}
+    </p>
+    <button
+      onClick={() => {
+        setFilterCity("");
+        setFilterType("");
+        setFilterAuthor("");
+        setFilterCategory("");
+        setRadius("");
+        setSearchTerm("");
+      }}
+      className="px-6 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition"
+    >
+      Reset Filters
+    </button>
+  </div>
+)}
         
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            
+
+
             {filteredBooks.map((book) => (
               <BookCard
                 key={book._id}

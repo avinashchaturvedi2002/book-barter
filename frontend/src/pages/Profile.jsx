@@ -11,6 +11,7 @@ import SwapHistoryGrid from "../components/profile/SwapHistoryGrid";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import LoginPromptModal from "../modals/LoginPromptModal.jsx";
+import ConfirmModal from "../modals/ConfirmModal.jsx";
 
 
 export default function Profile() {
@@ -25,8 +26,12 @@ export default function Profile() {
   const [error, setError] = useState(null);
   const [swapHistory, setSwapHistory]=useState([]);
   const [purchaseHistory,setPurchaseHistory]=useState([]);
+  const [alreadyRequestedIds, setAlreadyRequestedIds] = useState([]);
   const [isOwnProfile,setIsOwnProfile]=useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [bookIdToDelete, setBookIdToDelete] = useState(null);
+
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
   const navigate=useNavigate();
 
@@ -96,6 +101,27 @@ export default function Profile() {
     checkOwnProfile();
   }, [userId]);
 
+  useEffect(() => {
+  if (isOwnProfile) return;           // nothing to do on your own profile
+  const token =
+    sessionStorage.getItem("token") || localStorage.getItem("token");
+
+  const fetchRequested = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/user/requestedbooks`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = await res.json();
+      setAlreadyRequestedIds(data.requestedBookIds); // ➙ state in parent
+    } catch (err) {
+      console.error("Failed to fetch already requested book ids", err);
+    }
+  };
+
+  fetchRequested();
+}, [isOwnProfile, userId]);
+
   // Handle profile pic change
   async function handleProfilePicChange(e) {
     showLoader("Uploading Your Profile Picture...")
@@ -128,6 +154,33 @@ export default function Profile() {
    
   }
 
+ const triggerDelete = (bookId) => {
+  setBookIdToDelete(bookId);
+  setShowConfirmModal(true);
+};
+
+const handleConfirmDelete = async () => {
+  setShowConfirmModal(false);
+  try {
+    showLoader("Deleting book...");
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/books/${bookIdToDelete}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to delete book");
+    await fetchUserProfile(); // or update state manually
+  } catch (err) {
+    setError(err.message || "Something went wrong while deleting the book.");
+  } finally {
+    hideLoader();
+  }
+};
+
+
   if (!token) {
     return (
       <>
@@ -157,11 +210,21 @@ export default function Profile() {
   navigate={navigate} 
   setActiveTab={setActiveTab}/>
 <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} isOwnProfile={isOwnProfile} />
-{activeTab === "uploaded" && <UploadedBooksGrid books={userData.books} isOwnProfile={isOwnProfile} />}
+{activeTab === "uploaded" && <UploadedBooksGrid books={userData.books} isOwnProfile={isOwnProfile} alreadyRequestedIds={alreadyRequestedIds} onDeleteBook={triggerDelete}/>}
 {activeTab === "history" && <SwapHistoryGrid swapHistory={swapHistory} />}
 {activeTab === "rating" && <RatingSection userId={userId} isOwnProfile={isOwnProfile} />}
 {activeTab === "borrowed" && isOwnProfile && <BorrowedBooks />}
 {activeTab === "lent" && isOwnProfile && <LentBooks />}
+<ConfirmModal
+  isOpen={showConfirmModal}
+  onClose={() => setShowConfirmModal(false)}
+  onConfirm={handleConfirmDelete}
+  title="Delete Book?"
+  message="Are you sure you want to permanently delete this book?"
+  confirmText="Delete"
+  cancelText="Cancel"
+/>
+
     </div>
   );
 }

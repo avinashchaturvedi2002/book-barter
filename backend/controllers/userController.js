@@ -138,7 +138,7 @@ const getUserProfile = async (req, res) => {
 
     const user = await User.findById(userId).populate({
       path: "books",
-      select: "title author imageUrl mode category available city",
+      select: "title author imageUrl mode category available city sellingPrice",
     });
 
     if (!user) {
