@@ -17,6 +17,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/socketContext";
 import NotificationBell from "./notificationBell";
+import { Coffee } from "lucide-react";
 
 const navItems = {
   loggedOut: [
@@ -87,6 +88,27 @@ export function Header() {
       <NotificationBell />
     </div>
   )}
+  {isLoggedIn && (
+  <Link
+    to={`/profile/${user?._id}`}
+    className="md:hidden relative w-8 h-8 rounded-full overflow-hidden border border-gray-300 dark:border-gray-700 ml-2"
+    title="Your Profile"
+  >
+    {user?.profileImage ? (
+      <img
+        src={user.profileImage}
+        alt="Profile"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="w-full h-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+        {(user?.firstName?.[0] || "") + (user?.lastName?.[0] || "")}
+      </div>
+    )}
+  </Link>
+)}
+
+
 
   {/* Mobile: Hamburger */}
   <button
@@ -143,52 +165,64 @@ export function Header() {
       </nav>
 
       {menuOpen && (
-        <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col items-center justify-center gap-8 text-xl text-gray-800 dark:text-gray-100 sm:hidden z-40 p-10">
-          {navLinks.map(({ name, href, action, icon: Icon, primary }, idx) => {
-            const finalHref = href === "/profile" ? `/profile/${user?._id}` : href;
-            if (href) {
-              return (
-                <Link
-                  key={idx}
-                  to={finalHref}
-                  onClick={() => setMenuOpen(false)}
-                  className={`relative flex items-center gap-3 px-6 py-3 rounded font-semibold transition ${
-                    primary
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "hover:text-blue-600"
-                  }`}
-                >
-                  <Icon className="w-6 h-6" />
-                  {name}
-                  {name === "Chat" && unseenMessages > 0 && (
-                    <span className="absolute -top-1 -right-2 text-xs font-bold bg-red-600 text-white rounded-full px-1.5">
-                      {unseenMessages}
-                    </span>
-                  )}
-                </Link>
-              );
-            } else {
-              return (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    handleAction(action);
-                    setMenuOpen(false);
-                  }}
-                  className={`flex items-center gap-3 px-6 py-3 rounded font-semibold transition ${
-                    primary
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "hover:text-blue-600"
-                  }`}
-                >
-                  <Icon className="w-6 h-6" />
-                  {name}
-                </button>
-              );
-            }
-          })}
-        </div>
-      )}
+  <div className="fixed inset-0 bg-white dark:bg-gray-900 flex flex-col justify-between sm:hidden z-40 p-6 overflow-y-auto">
+    <div className="flex flex-col items-center gap-8 text-xl text-gray-800 dark:text-gray-100">
+      {navLinks.map(({ name, href, action, icon: Icon, primary }, idx) => {
+        const finalHref = href === "/profile" ? `/profile/${user?._id}` : href;
+        if (href) {
+          return (
+            <Link
+              key={idx}
+              to={finalHref}
+              onClick={() => setMenuOpen(false)}
+              className={`relative flex items-center gap-3 px-6 py-3 rounded font-semibold transition ${
+                primary ? "bg-blue-600 text-white hover:bg-blue-700" : "hover:text-blue-600"
+              }`}
+            >
+              <Icon className="w-6 h-6" />
+              {name}
+              {name === "Chat" && unseenMessages > 0 && (
+                <span className="absolute -top-1 -right-2 text-xs font-bold bg-red-600 text-white rounded-full px-1.5">
+                  {unseenMessages}
+                </span>
+              )}
+            </Link>
+          );
+        } else {
+          return (
+            <button
+              key={idx}
+              onClick={() => {
+                handleAction(action);
+                setMenuOpen(false);
+              }}
+              className={`flex items-center gap-3 px-6 py-3 rounded font-semibold transition ${
+                primary ? "bg-blue-600 text-white hover:bg-blue-700" : "hover:text-blue-600"
+              }`}
+            >
+              <Icon className="w-6 h-6" />
+              {name}
+            </button>
+          );
+        }
+      })}
+    </div>
+
+    {/* Buy Me a Coffee Button */}
+    <button
+      onClick={() => {
+        const event = new CustomEvent("openCoffeeModal");
+        window.dispatchEvent(event);
+        setMenuOpen(false);
+      }}
+      className="mt-6 flex items-center gap-2 justify-center px-5 py-3 rounded-full bg-yellow-400 hover:bg-yellow-500 text-black shadow-lg transition"
+    >
+      <Coffee className="w-5 h-5" />
+      Buy Me a Coffee
+    </button>
+  </div>
+)}
+
     </header>
   );
 }

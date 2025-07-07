@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import BuyCoffeeModal from "../../modals/CoffeeModal";
+import { useEffect } from "react";
 
 
 export default function Footer() {
@@ -17,6 +18,12 @@ export default function Footer() {
     window.innerWidth < 640; // <640px = mobile
 
   if (isChatConversation) return null;
+
+  useEffect(() => {
+  const openModalHandler = () => setShowModal(true);
+  window.addEventListener("openCoffeeModal", openModalHandler);
+  return () => window.removeEventListener("openCoffeeModal", openModalHandler);
+}, []);
 
   return (
     <footer className="bg-blue-50 text-gray-700 w-full dark:text-gray-300 border-t border-gray-200 dark:border-gray-800">
