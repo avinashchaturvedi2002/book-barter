@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import OTPValidationModal from "../../modals/OTPValidationModal";
 import { useLoading } from "../../context/LoadingContext";
 import ErrorPage from "../../pages/ErrorPage";
+import SuccessPopup from "../ui/success"; 
+
 
 
 export default function BorrowedBooks() {
@@ -11,6 +13,7 @@ export default function BorrowedBooks() {
   const [selectedExchangeId, setSelectedExchangeId] = useState("");
   const {showLoader,hideLoader}=useLoading();
   const [error,setError]=useState(null)
+  const [showSuccess,setShowSuccess]=useState(false)
 
   /*────────────────── Fetch data ──────────────────*/
   useEffect(() => {
@@ -89,7 +92,7 @@ export default function BorrowedBooks() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      alert("Return completed successfully!");
+      setShowSuccess(true);
       setShowOtpModal(false);
       
     } catch (err) {
@@ -219,6 +222,12 @@ export default function BorrowedBooks() {
         onValidate={handleValidateOtp}
         exchangeId={selectedExchangeId}
       />
+
+      <SuccessPopup
+  message="✅ Return completed successfully!"
+  show={showSuccess}
+  onClose={() => setShowSuccess(false)}
+/>
     </div>
   );
 }

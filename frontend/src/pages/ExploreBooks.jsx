@@ -75,6 +75,7 @@ export default function ExploreBooks() {
       if(res.ok)
       {
         setShowPurchaseConfirmation(true);
+        setRequestedBookIds((prev) => [...prev, book._id]);
       }
     }
     catch (err) {

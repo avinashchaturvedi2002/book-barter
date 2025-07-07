@@ -8,6 +8,7 @@ import MyExchangeRequestCard from "../components/ui/myExchangeRequestCard";
 import MyPurchaseCard from "../components/ui/myPurchaseCard";
 
 
+
 export default function MyRequests() {
   const [activeTab, setActiveTab] = useState("exchange");
   const [requests, setRequests] = useState([]);
@@ -21,6 +22,7 @@ export default function MyRequests() {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
   const user = token ? JSON.parse(atob(token.split(".")[1])) : { name: "", email: "" };
+  const [showSuccess,setShowSuccess]=useState(false)
 
   useEffect(() => {
     (async () => {
@@ -123,6 +125,7 @@ export default function MyRequests() {
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
+      setShowSuccess(true);
       setShowOtpModal(false);
       setRequests((prev) =>
         prev.map((r) =>
@@ -384,6 +387,8 @@ export default function MyRequests() {
         exchangeId={activeTab === "exchange" ? selectedExchangeId : undefined}
         purchaseId={activeTab === "purchase" ? selectedPurchaseId : undefined}
       />
+      <SuccessPopup show={showSuccess} message={"Book Swapped"} onClose={()=>{setShowSuccess(false)}}/>
     </div>
+    
   );
 }
