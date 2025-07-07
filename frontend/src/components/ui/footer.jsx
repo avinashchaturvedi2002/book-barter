@@ -17,13 +17,15 @@ export default function Footer() {
     location.pathname.startsWith("/chat/") &&
     window.innerWidth < 640; // <640px = mobile
 
-  if (isChatConversation) return null;
+  
 
   useEffect(() => {
   const openModalHandler = () => setShowModal(true);
   window.addEventListener("openCoffeeModal", openModalHandler);
   return () => window.removeEventListener("openCoffeeModal", openModalHandler);
 }, []);
+
+if (isChatConversation) return null;
 
   return (
     <footer className="bg-blue-50 text-gray-700 w-full dark:text-gray-300 border-t border-gray-200 dark:border-gray-800">
