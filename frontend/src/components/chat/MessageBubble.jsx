@@ -10,7 +10,7 @@ export default function MessageBubble({ msg }) {
           msg.fromSelf ? "bg-blue-600" : "bg-white border"
         }`}
       >
-        {msg.content}
+        {String(msg.content)}
       </div>
       {msg.fromSelf && (
         <div className="text-[10px] text-right text-green-500 pr-1">
