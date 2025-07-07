@@ -87,9 +87,9 @@ export default function LentBooks() {
                 ):(<span className="text-gray-700 dark:text-gray-300 mt-5">You have lent it on security money</span>)}
 
                 <hr className="my-2 border-zinc-200 dark:border-zinc-700" />
-                <Link to={`/profile/${ex.currentHolder._id}`}>
+                <Link to={`/chat/${ex.currentHolder._id}`}>
                                   <p className="text-sm text-blue-600 dark:text-gray-300 underline">
-                  <span className="font-medium">Borrowed by:</span> {ex.currentHolder.name}
+                  <span className="font-medium">Chat with: </span> {ex.currentHolder.name}
                 </p>
                 </Link>
 

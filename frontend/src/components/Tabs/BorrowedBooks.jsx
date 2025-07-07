@@ -181,9 +181,9 @@ export default function BorrowedBooks() {
                       </span></>)}
 
                   <hr className="my-2 border-zinc-200 dark:border-zinc-700" />
-                  <Link to={`/profile/${ex.owner._id}`}>
+                  <Link to={`/chat/${ex.owner._id}`}>
                     <p className="text-sm  text-blue-600 dark:text-gray-300 underline">
-                    <span className="font-medium">Original owner:</span> {" "}
+                    <span className="font-medium">Chat with:</span> {" "}
                     {ex.owner?.name ?? "—"}
                   </p>
                   </Link>

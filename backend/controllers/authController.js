@@ -248,8 +248,28 @@ const pwaGoogleHandling=async (req, res) => {
     // 3. Create or find user in DB
     let user = await User.findOne({ email });
     if (!user) {
-      user = await User.create({ email, name, profilePic: picture });
-    }
+  const [firstName, ...rest] = name.trim().split(" ");
+  const lastName = rest.join(" ") || "-";
+
+  const usernameBase = email.split("@")[0];
+  let uniqueUsername = usernameBase;
+  let suffix = 1;
+
+  while (await User.findOne({ username: uniqueUsername })) {
+    uniqueUsername = `${usernameBase}${suffix++}`;
+  }
+
+  user = await User.create({
+    firstName,
+    lastName,
+    email,
+    username: uniqueUsername,
+    password: null,
+    profilePicture: picture,
+    fromGoogle: true,
+  });
+}
+
 
     // 4. Generate your app’s JWT
     const appToken = jwt.sign(
