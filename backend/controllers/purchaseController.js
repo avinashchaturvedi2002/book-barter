@@ -3,6 +3,7 @@ import Book from "../models/Book.js"
 import { getIO } from "../socket.js";
 import { emitNotification } from "../utils/emitNotifications.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import User from "../models/User.js";
 const sendPurchaseRequest=async(req,res)=>{
   const userId=req.user._id;
   const {bookId}=req.body

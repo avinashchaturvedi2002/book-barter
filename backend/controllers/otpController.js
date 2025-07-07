@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { sendEmail } from "../utils/sendEmail.js";
 import { emitNotification } from "../utils/emitNotifications.js";
 import {getIO} from "../socket.js"
+import User from "../models/User.js";
 
 const OTP_EXPIRY_MINUTES = 10;
 

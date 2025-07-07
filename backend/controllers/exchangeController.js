@@ -5,6 +5,7 @@ import razorpay from "../utils/razorpay.js";
 import crypto from "crypto"
 import { emitNotification } from "../utils/emitNotifications.js";
 import {getIO} from "../socket.js"
+import User from "../models/User.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
 
@@ -90,7 +91,7 @@ const rejectExchangeRequest=async (req, res) => {
   message  : "Your exchange request was rejected.",
   exchangeId: exchange._id
 });
-
+    
     const borrower = await User.findById(exchange.requestedBy);
 await sendEmail(
   borrower.email,
