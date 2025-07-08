@@ -36,6 +36,7 @@ export default function ExploreBooks() {
   const debouncedSearch = useDebounce(searchTerm, 500);
   const debouncedRadius = useDebounce(radius, 500);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [loadindBooks,setLoadingBooks]=useState(false);
 
 
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -93,6 +94,7 @@ useEffect(()=>{
   
 useEffect(() => {
   const fetchBooks = async () => {
+    setLoadingBooks(true);
     showLoader("Getting the Books...");
     try {
       const query = new URLSearchParams();
@@ -132,6 +134,7 @@ useEffect(() => {
       setError(err?.response?.data?.message || err?.message || "Something went wrong.");
     } finally {
       hideLoader();
+      setLoadingBooks(false);
     }
   };
 
@@ -363,7 +366,7 @@ const onSelectCity = (option) => {
   </div>
 )}
 
-         {filteredBooks.length === 0 && (
+         {!loadindBooks && filteredBooks.length === 0 && (
   <div className="flex flex-col items-center justify-center text-center mt-16 mb-32 px-4">
     <img
       src="/image.png" 
