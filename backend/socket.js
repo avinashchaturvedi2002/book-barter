@@ -93,9 +93,15 @@ ioInstance = new Server(server, {
 
       /* Emit directly to each participant’s personal room */
       for (const participantId of conversation.participants) {
-        if (participantId.toString() === userId) continue;      // skip sender
-        io.to(`user:${participantId}`).emit("new_message", newMessage);
-      }
+  const idStr = participantId.toString();
+  if (idStr !== userId) {
+    // Skip sending new_message again
+    io.to(`user:${idStr}`).emit("update_conversations", {
+      conversationId,
+      lastMessage: newMessage,
+    });
+  }
+}
     });
 
     /* ── Typing Indicators ────────────────────────── */
