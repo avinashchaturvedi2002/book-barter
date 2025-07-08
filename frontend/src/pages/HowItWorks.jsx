@@ -18,18 +18,34 @@ export default function HowItWorksPage() {
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-950 text-gray-800 dark:text-white pb-20">
       {/* ===== Hero Section ===== */}
       <header className="max-w-5xl mx-auto px-4 pt-14 pb-10 text-center">
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold leading-tight mb-4"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          How <span className="text-blue-600">Book Barter</span> Works
-        </motion.h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
-          A seamless and secure way to swap, lend, or buy books — powered by community and technology.
-        </p>
-      </header>
+  <motion.h1
+    className="text-4xl sm:text-5xl font-bold leading-tight mb-4"
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.7 }}
+  >
+    Watch How <span className="text-blue-600">Book Barter</span> Works
+  </motion.h1>
+
+  {/* Responsive YouTube Video */}
+  <div className="w-full max-w-3xl mx-auto px-4 mb-8">
+  <div className="relative w-full pt-[56.25%] sm:pt-[50%] md:pt-[45%] lg:pt-[40%] rounded-xl overflow-hidden shadow-lg">
+    <iframe
+      className="absolute top-0 left-0 w-full h-full"
+      src="https://www.youtube.com/embed/BjJPS2Knak0"
+      title="Book Barter Demo"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
+
+
+
+  <p className="text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+    A seamless and secure way to swap, lend, or buy books — powered by community and technology.
+  </p>
+</header>
 
       {/* ===== Flow Sections ===== */}
       <section className="max-w-5xl mx-auto px-4 grid gap-12">
