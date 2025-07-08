@@ -69,7 +69,7 @@ app.use("/api/books", bookRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/exchange", exchangeRoutes);
 app.use('/api/conversations', chatRoutes);
-app.use("/api/payment/",coffeeRoutes)
+app.use("/api/payment",coffeeRoutes)
 app.use("/api/notifications",notificationRoutes)
 app.use("/api/purchase",purchaseRoutes)
 
