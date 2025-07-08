@@ -4,28 +4,26 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import coffeeRoutes from "./routes/coffeeRoutes.js"
+import coffeeRoutes from "./routes/coffeeRoutes.js";
 import exchangeRoutes from "./routes/exchangeRoutes.js";
 import chatRoutes from './routes/conversations.js';
-import notificationRoutes from "./routes/notificationRoutes.js"
+import notificationRoutes from "./routes/notificationRoutes.js";
+import purchaseRoutes from "./routes/purchaseRoutes.js";
 import cors from "cors";
 import http from "http";
 import { setupSocket } from "./socket.js";
 import returnReminderJob from "./cron/returnReminderJob.js";
 import returnOverdueReminderJob from "./cron/returnOverdueReminderJob.js";
-import purchaseRoutes from "./routes/purchaseRoutes.js"
-
 
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
+
 // Setup socket.io
-setupSocket(server);// ✅ Adjusted for ES Module
+setupSocket(server);
 
-
+// Connect to DB
 connectDB();
-
- // ✅ Call this with the HTTP server // ✅ HTTP server for socket.io
 
 // Middleware
 const allowedOrigins = [
@@ -34,7 +32,7 @@ const allowedOrigins = [
   "http://192.168.31.198:5173",
   "http://localhost:3000",
   "https://book-barter-live.netlify.app",
-].filter(Boolean); // removes undefined
+].filter(Boolean);
 
 app.options("*", cors({
   origin: function(origin, callback) {
@@ -46,35 +44,82 @@ app.options("*", cors({
   },
   credentials: true,
 }));
+
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      // Origin allowed
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // Origin not allowed
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
 }));
+
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/books", bookRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/exchange", exchangeRoutes);
-app.use('/api/conversations', chatRoutes);
-app.use("/api/payment",coffeeRoutes)
-app.use("/api/notifications",notificationRoutes)
-app.use("/api/purchase",purchaseRoutes)
+// Route registration with debug wrappers
+try {
+  console.log("Loading /api/auth");
+  app.use("/api/auth", authRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/auth:", e);
+}
 
-returnReminderJob.start()
+try {
+  console.log("Loading /api/books");
+  app.use("/api/books", bookRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/books:", e);
+}
+
+try {
+  console.log("Loading /api/user");
+  app.use("/api/user", userRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/user:", e);
+}
+
+try {
+  console.log("Loading /api/exchange");
+  app.use("/api/exchange", exchangeRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/exchange:", e);
+}
+
+try {
+  console.log("Loading /api/conversations");
+  app.use("/api/conversations", chatRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/conversations:", e);
+}
+
+try {
+  console.log("Loading /api/payment");
+  app.use("/api/payment", coffeeRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/payment:", e);
+}
+
+try {
+  console.log("Loading /api/notifications");
+  app.use("/api/notifications", notificationRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/notifications:", e);
+}
+
+try {
+  console.log("Loading /api/purchase");
+  app.use("/api/purchase", purchaseRoutes);
+} catch (e) {
+  console.error("❌ Failed to load /api/purchase:", e);
+}
+
+// Cron jobs
+returnReminderJob.start();
 returnOverdueReminderJob.start();
+
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
