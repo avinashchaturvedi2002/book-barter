@@ -10,6 +10,7 @@ import LoginPromptModal from "../modals/LoginPromptModal";
 import { useDebounce } from "../hooks/useDebounce";
 import CityAutocompleteInput from "../components/util/CityAutoComplete";
 import { Search } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 
 
 
@@ -36,7 +37,11 @@ export default function ExploreBooks() {
   const debouncedSearch = useDebounce(searchTerm, 500);
   const debouncedRadius = useDebounce(radius, 500);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [loadindBooks,setLoadingBooks]=useState(false);
+  const [loadingBooks,setLoadingBooks]=useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const { ref: sentinelRef, inView } = useInView({ threshold: 0 });
+
 
 
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -88,68 +93,72 @@ export default function ExploreBooks() {
     }
   }
 
+  const fetchBooks = async () => {
+  if (!hasMore && page !== 1) return;
+  setLoadingBooks(true);
+  showLoader("Loading books...");
+
+  try {
+    const query = new URLSearchParams();
+    if (filterType) query.append("type", filterType === "buy" ? "sell" : "lend");
+    if (filterAuthor) query.append("author", filterAuthor);
+    if (filterCategory) query.append("category", filterCategory);
+    if (debouncedSearch) query.append("title", debouncedSearch);
+    if (filterCity) query.append("city", filterCity);
+    if (debouncedRadius && userLocation) {
+      query.append("radius", debouncedRadius);
+      query.append("lat", userLocation.latitude);
+      query.append("lng", userLocation.longitude);
+    }
+
+    query.append("page", page);
+    query.append("limit", 9);
+
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/books/explore?${query}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+
+    // if filters are untouched, update options
+    if (page === 1) {
+      if (!filterType && !filterAuthor && !filterCategory && !filterCity && !searchTerm && !radius) {
+        setAllAuthors([...new Set(data.books.map(b => b.author))]);
+        setAllCategories([...new Set(data.books.map(b => b.category))]);
+        setAllCities([...new Set(data.books.map(b => b.city).filter(Boolean))]);
+      }
+    }
+
+    setBooks(prev => page === 1 ? data.books : [...prev, ...data.books]);
+    setHasMore(data.hasMore);
+  } catch (err) {
+    setError(err?.message || "Failed to fetch books.");
+  } finally {
+    hideLoader();
+    setLoadingBooks(false);
+  }
+};
+
 useEffect(()=>{
   fetchRequested();
 },[])
   
 useEffect(() => {
-  const fetchBooks = async () => {
-    setLoadingBooks(true);
-    showLoader("Getting the Books...");
-    try {
-      const query = new URLSearchParams();
-
-      if (filterType) query.append("type", filterType === "buy" ? "sell" : "lend");
-      if (filterAuthor) query.append("author", filterAuthor);
-      if (filterCategory) query.append("category", filterCategory);
-      if (debouncedSearch) query.append("title", debouncedSearch);
-      if (filterCity) query.append("city", filterCity);
-      if (debouncedRadius && userLocation) {
-        query.append("radius", debouncedRadius);
-        query.append("lat", userLocation.latitude);
-        query.append("lng", userLocation.longitude);
-      }
-
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/books/explore?${query.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-      setBooks(data);
-
-      if (
-        !filterType && !filterAuthor && !filterCategory &&
-        !filterCity && !searchTerm && !radius
-      ) {
-        setAllAuthors([...new Set(data.map(b => b.author))]);
-        setAllCategories([...new Set(data.map(b => b.category))]);
-        setAllCities([...new Set(data.map(b => b.city).filter(Boolean))]);
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message || err?.message || "Something went wrong.");
-    } finally {
-      hideLoader();
-      setLoadingBooks(false);
-    }
-  };
-
   if (userLocation || !debouncedRadius) {
     fetchBooks();
   }
-}, [
-  filterType,
-  filterAuthor,
-  filterCategory,
-  debouncedSearch,
-  filterCity,
-  debouncedRadius,
-  userLocation
-]);
+}, [page]);
+
+useEffect(() => {
+  if (inView && hasMore && !loadingBooks) {
+    setPage(prev => prev + 1);
+  }
+}, [inView]);
+
+useEffect(() => {
+  setPage(1);
+  setHasMore(true);
+}, [filterType, filterAuthor, filterCategory, debouncedSearch, filterCity, debouncedRadius, userLocation]);
 
 
 const onSelectCity = (option) => {
@@ -366,7 +375,7 @@ const onSelectCity = (option) => {
   </div>
 )}
 
-         {!loadindBooks && filteredBooks.length === 0 && (
+         {!loadingBooks && filteredBooks.length === 0 && (
   <div className="flex flex-col items-center justify-center text-center mt-16 mb-32 px-4">
     <img
       src="/image.png" 
@@ -410,6 +419,8 @@ const onSelectCity = (option) => {
                 isRequested={requestedBookIds?.includes(book._id)}
               />
             ))}
+
+            <div ref={sentinelRef}></div>
           </div>
         
       </div>

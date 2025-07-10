@@ -129,7 +129,7 @@ export default function ContactPage() {
       <div className="text-center text-gray-600 dark:text-gray-400 text-sm">
         <MessageSquareText className="w-5 h-5 inline-block mr-1 text-blue-500" />
         You can also reach us at{" "}
-        <a href="mailto:hello@bookbarter.in" className="underline text-blue-600">
+        <a href="mailto:chaturvediavinash2002@gmail.com" className="underline text-blue-600">
           chaturvediavinash2002@gmail.com
         </a>
       </div>

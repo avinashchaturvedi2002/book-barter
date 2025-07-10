@@ -84,30 +84,31 @@ const addBook = async (req, res) => {
 
 const exploreBooks = async (req, res) => {
   try {
-    const { type, author, category, title, radius, lat, lng, city } = req.query;
-    
-    console.log(req.user);
+    const {
+      type,
+      author,
+      category,
+      title,
+      radius,
+      lat,
+      lng,
+      city,
+      page = 1,
+      limit = 9,
+    } = req.query;
 
-    const filters = {
-  available: true,
-};
-
-if (req.user) {
-  filters.owner = { $ne: req.user.id }; // Exclude user's own books if logged in
-}
-
+    const filters = { available: true };
+    if (req.user) filters.owner = { $ne: req.user.id };
     if (type === "sell") filters.mode = "sell";
     if (type === "lend") filters.mode = "lend";
     if (author) filters.author = author;
     if (category) filters.category = category;
     if (title) filters.title = { $regex: title, $options: "i" };
-    if (city) {
-      console.log("CITY FILTER:", city);
-  const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  filters.city = { $regex: escapedCity, $options: "i" };
-}
-
-
+    if (city)
+      filters.city = {
+        $regex: city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+        $options: "i",
+      };
     if (radius && lat && lng) {
       filters.location = {
         $near: {
@@ -115,21 +116,29 @@ if (req.user) {
             type: "Point",
             coordinates: [parseFloat(lng), parseFloat(lat)],
           },
-          $maxDistance: parseFloat(radius) * 1000, // km to meters
+          $maxDistance: parseFloat(radius) * 1000,
         },
       };
     }
 
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await Book.countDocuments(filters);
     const books = await Book.find(filters)
       .select("-__v")
-      .populate("owner", "firstName lastName");
+      .populate("owner", "firstName lastName")
+      .skip(skip)
+      .limit(parseInt(limit));
 
-    res.json(books);
+    res.json({
+      books,
+      hasMore: skip + books.length < total,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch books" });
   }
 };
+
 
 const exchangeBooks = async (req, res) => {
   const userId = req.user._id;
