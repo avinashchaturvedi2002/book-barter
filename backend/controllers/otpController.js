@@ -52,7 +52,7 @@ export const initiateOtpExchange = async (req, res) => {
     await sendEmail(
        lenderEmail,
        "Book Barter OTP for Exchange Confirmation",
-      `Hello,\n\nYour OTP for confirming the exchange is:${otp}\nIt will expire in 10 minutes.\n\nThank you.`
+      `Hello,\n\nYour OTP for confirming the exchange is:${otp}\nIt will expire in 10 minutes.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\nThank you.`
     );
     const io=getIO();
      await emitNotification(io, {
@@ -136,13 +136,13 @@ const lender = await User.findById(exchange.requestedFrom);
 await sendEmail(
   borrower.email,
   "Book Barter • Exchange Confirmed",
-  `Hi ${borrower.firstName},\n\nYour exchange for "${exchange.requestedBook.title}" has been successfully confirmed.\n\nReturn by: ${exchange.returnBy.toDateString()}\n\n📚 Book Barter Team`
+  `Hi ${borrower.firstName},\n\nYour exchange for "${exchange.requestedBook.title}" has been successfully confirmed.\n\nReturn by: ${exchange.returnBy.toDateString()}\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 await sendEmail(
   lender.email,
   "Book Barter • Exchange Confirmed",
-  `Hi ${lender.firstName},\n\nYou have successfully lent/swapped your book "${exchange.requestedBook.title}".\n\n📚 Book Barter Team`
+  `Hi ${lender.firstName},\n\nYou have successfully lent/swapped your book "${exchange.requestedBook.title}".\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 
@@ -219,7 +219,7 @@ export const initiateReturnOtpExchange=async (req, res) => {
     await sendEmail(
        lenderEmail,
        "Book Barter OTP for Exchange Confirmation",
-      `Hello,\n\nYour OTP for returning the exchange is: ${otp}.\nIt will expire in 10 minutes.\n\nThank you.`
+      `Hello,\n\nYour OTP for returning the exchange is: ${otp}.\nIt will expire in 10 minutes.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\nThank you.`
     );
     const io=getIO();
     await emitNotification(io, {
@@ -285,13 +285,13 @@ const lender = await User.findById(exchange.requestedFrom);
 await sendEmail(
   borrower.email,
   "Book Barter • Book Return Completed",
-  `Hi ${borrower.firstName},\n\nYou have successfully returned "${exchange.requestedBook.title}".\n\n📚 Thank you for using Book Barter!`
+  `Hi ${borrower.firstName},\n\nYou have successfully returned "${exchange.requestedBook.title}".\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Thank you for using Book Barter!`
 );
 
 await sendEmail(
   lender.email,
   "Book Barter • Book Received Back",
-  `Hi ${lender.firstName},\n\n"${exchange.requestedBook.title}" has been returned by the borrower.\nPlease confirm the condition and proceed with any refund if applicable.\n\n📚 Book Barter Team`
+  `Hi ${lender.firstName},\n\n"${exchange.requestedBook.title}" has been returned by the borrower.\nPlease confirm the condition and proceed with any refund if applicable.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
     
@@ -351,7 +351,7 @@ export const initiatePurchaseOtp=async(req,res)=>{
     await sendEmail(
        sellerEmail,
        "Book Barter OTP for Selling Confirmation",
-      `Hello,\n\nYour OTP for confirming the selling of book is: ${otp}\nIt will expire in 10 minutes.\n\nThank you.\n `
+      `Hello,\n\nYour OTP for confirming the selling of book is: ${otp}\nIt will expire in 10 minutes.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\nThank you.\n `
     );
     const io=getIO();
      await emitNotification(io, {
@@ -425,13 +425,13 @@ const seller = await User.findById(purchase.seller);
 await sendEmail(
   buyer.email,
   "Book Barter • Purchase Completed",
-  `Hi ${buyer.firstName},\n\nYour purchase of "${purchase.book.title}" is successful! Enjoy reading 📚\n\nThanks for using Book Barter.`
+  `Hi ${buyer.firstName},\n\nYour purchase of "${purchase.book.title}" is successful! Enjoy reading 📚\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\nThanks for using Book Barter.`
 );
 
 await sendEmail(
   seller.email,
   "Book Barter • Book Sold",
-  `Hi ${seller.firstName},\n\nYou have successfully sold your book "${purchase.book.title}".\nPlease ensure handover and mark the delivery complete.\n\n📚 Book Barter Team`
+  `Hi ${seller.firstName},\n\nYou have successfully sold your book "${purchase.book.title}".\nPlease ensure handover and mark the delivery complete.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 

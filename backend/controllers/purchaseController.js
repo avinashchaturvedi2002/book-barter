@@ -43,7 +43,7 @@ if (existingRequest) {
 await sendEmail(
   seller.email,
   "📘 Book Barter: Purchase Request Received",
-  `${req.user.firstName} wants to buy your book "${requestedBook.title}".\nLogin to respond!`
+  `${req.user.firstName} wants to buy your book "${requestedBook.title}".\nLogin to respond!\n\n Click here to open app : ${process.env.FRONTEND_URL}`
 );
     const io=getIO();
     await emitNotification(io,{

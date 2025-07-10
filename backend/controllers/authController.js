@@ -43,7 +43,7 @@ const registerUser = async (req, res) => {
     await sendEmail(
   email,
   "Welcome to Book Barter!",
-  `Hi ${firstName},\n\nThanks for joining Book Barter! You can now explore, share, and exchange books with your peers.\n\nHappy Reading! 📚`
+  `Hi ${firstName},\n\nThanks for joining Book Barter! You can now explore, share, and exchange books with your peers.\n\nHappy Reading! 📚\n\n Click here to open app : ${process.env.FRONTEND_URL}`
 );
 
     return res.status(201).json({ message: "User registered successfully!" });
@@ -222,7 +222,7 @@ const resetPassword = async (req, res) => {
     await sendEmail(
   email,
   "Book Barter • Password Changed",
-  `Hi ${user.firstName},\n\nYour password was successfully changed. If this wasn't you, please reset your password immediately.\n\nStay safe!`
+  `Hi ${user.firstName},\n\nYour password was successfully changed. If this wasn't you, please reset your password immediately.\n\nStay safe! \n\n Click here to open app : ${process.env.FRONTEND_URL}`
 );
 
 

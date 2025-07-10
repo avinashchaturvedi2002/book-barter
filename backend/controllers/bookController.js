@@ -189,7 +189,7 @@ const exchangeBooks = async (req, res) => {
 await sendEmail(
   bookOwner.email,
   "Book Barter • New Exchange Request",
-  `Hi ${bookOwner.firstName},\n\n${req.user.firstName} has requested to exchange books with you.\n\nBook Requested: ${requestedBook.title}\nBook Offered: ${offeredBook.title}\nDuration: ${durationInDays} days\n\nLogin to Book Barter to accept, reject or counter the request.\n\nHappy Swapping! 📚`
+  `Hi ${bookOwner.firstName},\n\n${req.user.firstName} has requested to exchange books with you.\n\nBook Requested: ${requestedBook.title}\nBook Offered: ${offeredBook.title}\nDuration: ${durationInDays} days\n\nLogin to Book Barter to accept, reject or counter the request.\n\nHappy Swapping! 📚 \n\n Click here to open app : ${process.env.FRONTEND_URL}`
 );
 
   console.log("notification emitted");

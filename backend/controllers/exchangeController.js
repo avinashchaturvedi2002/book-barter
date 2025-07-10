@@ -52,7 +52,7 @@ const acceptExchangeRequest = async (req, res) => {
 await sendEmail(
   borrower.email,
   "Book Barter • Exchange Request Accepted",
-  `Hi ${borrower.firstName},\n\nYour exchange request for "${exchange.requestedBook.title}" has been accepted. Head over to Book Barter to proceed with the next steps.\n\n📚 Book Barter Team`
+  `Hi ${borrower.firstName},\n\nYour exchange request for "${exchange.requestedBook.title}" has been accepted. Head over to Book Barter to proceed with the next steps.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
     res.status(200).json({ message: "Exchange request accepted successfully.", exchange });
@@ -96,7 +96,7 @@ const rejectExchangeRequest=async (req, res) => {
 await sendEmail(
   borrower.email,
   "Book Barter • Exchange Request Rejected",
-  `Hi ${borrower.firstName},\n\nUnfortunately, your exchange request for "${exchange.requestedBook.title}" was rejected. Feel free to explore other books or try again with a different offer.\n\n📚 Book Barter Team`
+  `Hi ${borrower.firstName},\n\nUnfortunately, your exchange request for "${exchange.requestedBook.title}" was rejected. Feel free to explore other books or try again with a different offer.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 
@@ -157,7 +157,7 @@ const counterExchangeOffer = async (req, res) => {
 await sendEmail(
   borrower.email,
   "Book Barter • New Counter-Offer",
-  `Hi ${borrower.firstName},\n\nThe owner of "${exchange.requestedBook.title}" has sent a counter-offer. Log in to Book Barter to view and respond.\n\n📚 Book Barter Team`
+  `Hi ${borrower.firstName},\n\nThe owner of "${exchange.requestedBook.title}" has sent a counter-offer. Log in to Book Barter to view and respond.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
     res.status(200).json({ message: "Counter-offer sent.", exchange });
@@ -222,7 +222,7 @@ const cancelExchangeRequest = async (req, res) => {
 await sendEmail(
   owner.email,
   "Book Barter • Exchange Request Cancelled",
-  `Hi ${owner.firstName},\n\nThe borrower has cancelled the exchange request for your book. You can explore other requests on Book Barter.\n\n📚 Book Barter Team`
+  `Hi ${owner.firstName},\n\nThe borrower has cancelled the exchange request for your book. You can explore other requests on Book Barter.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 
@@ -274,7 +274,7 @@ const offerSecurityDeposit = async (req, res) => {
 await sendEmail(
   borrower.email,
   "Book Barter • Security Deposit Offered",
-  `Hi ${borrower.firstName},\n\nThe lender has offered to lend you "${ex.requestedBook.title}" in exchange for a security deposit of ₹${ex.securityAmount}.\n\nLog in to proceed with the deposit.\n\n📚 Book Barter Team`
+  `Hi ${borrower.firstName},\n\nThe lender has offered to lend you "${ex.requestedBook.title}" in exchange for a security deposit of ₹${ex.securityAmount}.\n\nLog in to proceed with the deposit.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
     // 4️⃣  Done
@@ -362,7 +362,7 @@ const verifySecurityPayment = async (req, res) => {
 await sendEmail(
   lender.email,
   "Book Barter • Security Deposit Paid",
-  `Hi ${lender.firstName},\n\nThe borrower has successfully paid the security deposit for "${ex.requestedBook.title}". You can now hand over the book and track the transaction.\n\n📚 Book Barter Team`
+  `Hi ${lender.firstName},\n\nThe borrower has successfully paid the security deposit for "${ex.requestedBook.title}". You can now validate otp and do the swap.\n\n Click here to open app : ${process.env.FRONTEND_URL}\n\n📚 Book Barter Team`
 );
 
 
