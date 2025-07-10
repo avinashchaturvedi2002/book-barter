@@ -4,6 +4,7 @@ import BookAutocompleteInput from "../components/util/autocomplete";
 import CityAutocompleteInput from "../components/util/CityAutoComplete";
 
 import ErrorPage from "./ErrorPage";
+import SuccessPopup from "../components/ui/success";
 
 export default function UploadBook() {
   const [bookData, setBookData] = useState({
@@ -433,25 +434,7 @@ export default function UploadBook() {
         </div>
       </div>
 
-      {showSuccess && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center max-w-sm shadow-lg">
-            <div className="text-green-500 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold mb-2 dark:text-white">Book Uploaded Successfully!</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">Your book is now live for others to see.</p>
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <SuccessPopup message={"Book Uploaded Successfully"} show={showSuccess} onClose={()=>setShowSuccess(false)}/>
     </>
   );
 }

@@ -40,7 +40,11 @@ export default function ExchangeRequestCard({ req, onAccept, onReject, onCounter
             </>
           ) : (
             (status === "accepted" || status === "security_paid") && (
+              <>
               <ActionButton label={`Chat with ${requestedBy.firstName}`} variant="blue" onClick={() => onChat(requestedBy._id)} />
+              <ActionButton label="Reject" variant="red" onClick={() => onReject(_id)} />
+              </>
+              
             )
           )}
         </div>

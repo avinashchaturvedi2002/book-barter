@@ -48,6 +48,7 @@ if (isChatConversation) return null;
           </button>
           <div className="flex gap-3 text-sm">
             <Link to={"/about"}className="hover:underline">About Us</Link>
+            <Link to={"/contact"} className="hover:underline">Contact Us</Link>
             <div className=" mt-1 flex space-x-2">
                <a href="https://www.instagram.com/avinashchaturvedi2002/" target="_blank" rel="noopener noreferrer">
               <FaInstagram className="w-4 h-4 hover:text-pink-500" />
@@ -77,7 +78,9 @@ if (isChatConversation) return null;
           <div className="flex space-x-2">
               <Link to={`/terms`}>Terms and Conditions</Link>
           <Link to={'/privacy'}>Privacy Policy</Link>
+          
           </div>
+          
           
         </div>
 
@@ -92,6 +95,7 @@ if (isChatConversation) return null;
           
         
       </div>
+      
     </footer>
   );
 }

@@ -23,6 +23,7 @@ import InstallPrompt from "./components/util/InstallPrompt"
 import { useEffect } from "react"
 import { useLocation } from "react-router-dom"
 import HowItWorksPage from "./pages/HowItWorks"
+import ContactPage from "./pages/ContactUs"
 function App() {
   const location = useLocation();
   const isChatRoute = location.pathname.startsWith("/chat");
@@ -65,6 +66,7 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/how-it-works" element={<HowItWorksPage/>}/>
+          <Route path="/contact" element={<ContactPage/>}/>
 
         </Routes>
       </main>

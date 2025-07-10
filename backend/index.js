@@ -9,11 +9,13 @@ import exchangeRoutes from "./routes/exchangeRoutes.js";
 import chatRoutes from './routes/conversations.js';
 import notificationRoutes from "./routes/notificationRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js"
 import cors from "cors";
 import http from "http";
 import { setupSocket } from "./socket.js";
 import returnReminderJob from "./cron/returnReminderJob.js";
 import returnOverdueReminderJob from "./cron/returnOverdueReminderJob.js";
+
 
 dotenv.config();
 const app = express();
@@ -107,6 +109,15 @@ try {
   app.use("/api/purchase", purchaseRoutes);
 } catch (e) {
   console.error("❌ Failed to load /api/purchase:", e);
+}
+
+try{
+  console.log("Loading/api/contact");
+  app.use("/api/contact",contactRoutes);
+}
+catch(e)
+{
+  console.error("Failed to load contact route")
 }
 
 // Cron jobs

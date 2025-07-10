@@ -87,6 +87,12 @@ export default function AboutPage() {
             <p className="leading-relaxed text-gray-700 dark:text-gray-300">
               The idea for Book Barter emerged from a personal experience. After finishing The Alchemist, I was looking forward to reading The Kite Runner. I reached out to my WhatsApp groups to borrow a copy, but received no responses. This made me realize how fragmented and limited book sharing is, even among enthusiastic readers. I envisioned a platform that could foster a broader, more accessible reading community—one where users can easily lend, borrow, or exchange books in a structured, secure, and engaging environment. Book Barter is my attempt to transform isolated reading habits into a collaborative experience through technology, while promoting sustainability and deeper literary connections.
             </p>
+            <a href="https://www.linkedin.com/in/avinash-chaturvedi/" >
+            <p className="text-sm italic text-gray-500 dark:text-gray-400 mt-2">
+  — Avinash Chaturvedi, Creator of Book Barter
+</p>
+            </a>
+            
           </motion.div>
         </div>
       </section>
@@ -104,7 +110,7 @@ export default function AboutPage() {
               <li>React (Vite)</li>
               <li>Tailwind CSS & Framer Motion</li>
               <li>Context API + Hooks</li>
-              <li>PWA‑ready, dark‑mode first</li>
+              <li>PWA‑ready</li>
             </ul>
           </div>
           {/* Backend */}
