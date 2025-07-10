@@ -46,11 +46,11 @@ export function SocketProvider({ children }) {
       try {
         /* notifications list */
         const nRes = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/notifications`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const nData = await nRes.json();
-        setNotifications(nData.notifications || []);
+  `${import.meta.env.VITE_BACKEND_URL}/api/notifications?page=1&limit=10`,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+const nData = await nRes.json();
+setNotifications(nData.notifications || []);
 
         /* unseen‑message count */
         const mRes = await fetch(

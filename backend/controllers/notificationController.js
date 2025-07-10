@@ -1,8 +1,23 @@
 import Notification from "../models/Notification.js";
-const getNotifications=async (req, res) => {
-  const notifications = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 });
-  res.json({ notifications });
-}
+const getNotifications = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const skip = (page - 1) * limit;
+
+  const [notifications, total] = await Promise.all([
+    Notification.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Notification.countDocuments({ user: req.user._id }),
+  ]);
+
+  const hasMore = skip + notifications.length < total;
+
+  res.json({ notifications, hasMore });
+};
+
 
 const markAsRead=async (req, res) => {
   await Notification.findOneAndUpdate(

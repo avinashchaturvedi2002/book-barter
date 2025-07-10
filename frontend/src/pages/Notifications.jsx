@@ -3,25 +3,57 @@ import { useSocket } from "../context/socketContext";
 import { useNavigate } from "react-router-dom";
 import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 
 export default function NotificationPage() {
   const { notifications, setNotifications, loading } = useSocket();
   const {showLoader, hideLoader}=useLoading();
   const [error,setError]=useState();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const { ref: loadMoreRef, inView } = useInView();
+  
   const navigate  = useNavigate();
 
   const token =
     sessionStorage.getItem("token") || localStorage.getItem("token");
 
-  if (loading) {
-    // still loading from context
-    return showLoader("loading notifications...");
-  }
-  else
-  {
-    hideLoader();
-  }
+  useEffect(() => {
+    if (loading) showLoader("Loading notifications...");
+    else hideLoader();
+  }, [loading]);
+
+  useEffect(() => {
+    if (inView && hasMore && !loadingMore) {
+      fetchMoreNotifications();
+    }
+  }, [inView]);
+
+  const fetchMoreNotifications = async () => {
+    setLoadingMore(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/notifications?page=${page + 1}&limit=10`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to fetch notifications");
+
+      setNotifications((prev) => [...prev, ...data.notifications]);
+      setHasMore(data.hasMore);
+      setPage((prev) => prev + 1);
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
 
   const markSingleRead = async (note) => {
     if (note.read) return;
@@ -116,7 +148,7 @@ export default function NotificationPage() {
             No notifications yet.
           </p>
         ) : (
-          notifications.map((note) => (
+          notifications.map((note,i) => (
             <div
               key={note._id}
               onClick={() => handleRedirect(note)}
@@ -125,6 +157,7 @@ export default function NotificationPage() {
                   ? "bg-white dark:bg-gray-800"
                   : "bg-yellow-50 dark:bg-yellow-900"
               }`}
+              ref={i === notifications.length - 1 ? loadMoreRef : null} 
             >
               <p className="text-sm text-gray-800 dark:text-gray-200">
                 {note.message}

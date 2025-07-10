@@ -25,6 +25,8 @@ export default function UploadBook() {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error,setError]=useState(null);
+  const [formKey, setFormKey] = useState(0); 
+
 
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
@@ -218,6 +220,7 @@ export default function UploadBook() {
       });
       setImage(null);
       setPreviewUrl("");
+      setFormKey(prev => prev + 1);
     } catch (err) {
       setError(err?.response?.data?.message || 
   err?.message ||                 
@@ -246,7 +249,7 @@ export default function UploadBook() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form key={formKey} onSubmit={handleSubmit} className="space-y-6">
             <BookAutocompleteInput onBookSelect={handleBookSelect} />
 
             <div>
