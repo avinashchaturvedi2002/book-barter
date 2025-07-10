@@ -73,17 +73,17 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// Get or create conversation
+
 router.get('/:userId', verifyToken, async (req, res) => {
   try {
     const { userId } = req.params;
     const currentUserId = req.user._id;
+    const { before, limit = 20 } = req.query;
 
     let conversation = await Conversation.findOne({
       participants: { $all: [currentUserId, userId] }
     }).populate('lastMessage');
 
-    // Get receiver's details
     const receiver = await User.findById(userId).select('firstName profileImage');
 
     if (!conversation) {
@@ -92,26 +92,24 @@ router.get('/:userId', verifyToken, async (req, res) => {
       });
     }
 
-    // Get messages
-    const messages = await Message.find({
-      conversationId: conversation._id
-    }).sort({ createdAt: 1 });
+    const filter = { conversationId: conversation._id };
+    if (before) {
+      filter.createdAt = { $lt: new Date(before) };
+    }
 
-    res.json({ conversation, messages, receiver });  // ✅ Send receiver's info
+    const messages = await Message.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+
+    res.json({
+      conversation,
+      receiver,
+      messages: messages.reverse(), // because we sort desc
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
-
-
-
-
-
-
-
 
 
 export default router;
