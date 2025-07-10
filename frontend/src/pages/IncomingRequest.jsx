@@ -6,6 +6,7 @@ import { useLoading } from "../context/LoadingContext";
 import ErrorPage from "./ErrorPage";
 import ExchangeRequestCard from "../components/ui/exchangeRequestCard";
 import PurchaseRequestCard from "../components/ui/purchaseRequestCard";
+import { useRef } from "react";
 
 export default function IncomingRequests() {
   const [activeTab, setActiveTab] = useState("exchange");
@@ -19,8 +20,32 @@ export default function IncomingRequests() {
  const [securityAmount, setSecurityAmount]=useState("0");
  const {showLoader,hideLoader}=useLoading();
  const [error,setError]=useState();
+ const [page, setPage] = useState(1);
+const [hasMore, setHasMore] = useState(true);
+const loaderRef = useRef();
 
-  
+  const getIncomingRequests = async (currentPage = 1) => {
+  showLoader("Getting your incoming requests...");
+  try {
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/incoming-requests?page=${currentPage}&limit=10`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+
+    if (activeTab === "exchange") {
+      setIncomingRequests((prev) => [...prev, ...data.exchangeRequests]);
+      if (data.exchangeRequests.length < 10) setHasMore(false);
+    } else {
+      setPurchaseNotifications((prev) => [...prev, ...data.purchaseRequests]);
+      if (data.purchaseRequests.length < 10) setHasMore(false);
+    }
+  } catch (err) {
+    setError(err?.message || "Something went wrong.");
+  } finally {
+    hideLoader();
+  }
+};
 
 
   const handleCounterSuccess = (id) => {
@@ -30,30 +55,37 @@ export default function IncomingRequests() {
   };
 
   useEffect(() => {
-    const getIncomingRequests = async () => {
-      showLoader("Getting your incoming requests...")
-      try {
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/incoming-requests`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        console.log(data);
-        setIncomingRequests(data.exchangeRequests);
-        setPurchaseNotifications(data.purchaseRequests);
-      } catch (err) {
-        setError(err?.response?.data?.message || 
-  err?.message ||                 
-  "Something went wrong.")
-      }
-      finally{
-        hideLoader();
-      }
-    };
+    
+
+
     getIncomingRequests();
   }, []);
+
+  useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage((prev) => prev + 1);
+      }
+    },
+    { threshold: 1 }
+  );
+
+  if (loaderRef.current) observer.observe(loaderRef.current);
+  return () => observer.disconnect();
+}, [loaderRef, hasMore]);
+
+useEffect(() => {
+  getIncomingRequests(page);
+}, [page]);
+
+useEffect(() => {
+  setIncomingRequests([]);
+  setPurchaseNotifications([]);
+  setPage(1);
+  setHasMore(true);
+}, [activeTab]);
+
 
   const handleUpdateStatus = async (id, newStatus) => {
     showLoader("Updating request status...")
@@ -197,6 +229,7 @@ export default function IncomingRequests() {
         onChat={(userId) => openChatWithUser(userId)}
       />
     ))}
+    {hasMore && <div ref={loaderRef} className="text-center text-sm text-gray-500">Loading more...</div>}
   </div>
 )}
 

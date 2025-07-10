@@ -90,46 +90,65 @@ const getMyRequests = async (req, res) => {
 };
 
 
-const incomingRequests=async (req,res)=>{
-  try{
-    const userId=req.user._id;
-    console.log(userId);
-    const exchangeRequests = await ExchangeRequest.find({
-  requestedFrom: userId,
-  status: { $in: ["pending", "accepted", "counter_pending", "security_pending","security_paid"] }   // <-- filter
-})
-  .populate({
-    path: "requestedBook",
-    populate: {
-      path: "owner",
-      select: "firstName lastName username profileImage _id",
-    },
-  })
-  .populate({
-    path: "requestedBy",
-    select: "firstName lastName  profileImage _id",
-    
-  })
-  .populate({
-    path:"offeredBook",
-  })
-  .sort({ updatedAt: -1 });
+const incomingRequests = async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-      const purchaseRequests = await PurchaseRequest.find({ seller: userId })
-      .populate("book").populate({path:"buyer",select:"firstName"})
-      .lean();
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [exchangeRequests, totalExchange] = await Promise.all([
+      ExchangeRequest.find({
+        requestedFrom: userId,
+        status: {
+          $in: ["pending", "accepted", "counter_pending", "security_pending", "security_paid"]
+        }
+      })
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "requestedBook",
+          populate: {
+            path: "owner",
+            select: "firstName lastName username profileImage _id",
+          },
+        })
+        .populate("requestedBy", "firstName lastName profileImage _id")
+        .populate("offeredBook"),
+      ExchangeRequest.countDocuments({
+        requestedFrom: userId,
+        status: {
+          $in: ["pending", "accepted", "counter_pending", "security_pending", "security_paid"]
+        }
+      }),
+    ]);
+
+    const [purchaseRequests, totalPurchase] = await Promise.all([
+      PurchaseRequest.find({ seller: userId })
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("book")
+        .populate("buyer", "firstName")
+        .lean(),
+      PurchaseRequest.countDocuments({ seller: userId }),
+    ]);
 
     res.status(200).json({
       exchangeRequests,
+      totalExchange,
       purchaseRequests,
+      totalPurchase,
     });
-  }
-  catch(e)
-  {
+  } catch (e) {
     console.error("Failed to fetch user requests", e);
     res.status(500).json({ message: "Failed to fetch your requests." });
   }
-}
+};
+
 
 
 const getUserProfile = async (req, res) => {
