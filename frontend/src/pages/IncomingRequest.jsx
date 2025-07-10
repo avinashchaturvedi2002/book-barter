@@ -54,12 +54,6 @@ const loaderRef = useRef();
     );
   };
 
-  useEffect(() => {
-    
-
-
-    getIncomingRequests();
-  }, []);
 
   useEffect(() => {
   const observer = new IntersectionObserver(
