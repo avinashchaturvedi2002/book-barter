@@ -19,7 +19,6 @@ export default function BookCard({ book, onActionClick, isRequested = false, own
         src={book.imageUrl}
         alt={book.title}
         className="w-full h-48 object-contain rounded mb-4"
-        loading="lazy"
       />
 
       {/* Content area */}
