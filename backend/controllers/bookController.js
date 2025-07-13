@@ -110,16 +110,17 @@ const exploreBooks = async (req, res) => {
         $options: "i",
       };
     if (radius && lat && lng) {
-      filters.location = {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)],
-          },
-          $maxDistance: parseFloat(radius) * 1000,
-        },
-      };
-    }
+  const RADIUS_IN_RADIANS = parseFloat(radius) / 6378.1; // Earth's radius in km
+  filters.location = {
+    $geoWithin: {
+      $centerSphere: [
+        [parseFloat(lng), parseFloat(lat)],
+        RADIUS_IN_RADIANS,
+      ],
+    },
+  };
+}
+
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const total = await Book.countDocuments(filters);

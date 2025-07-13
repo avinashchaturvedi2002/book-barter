@@ -144,10 +144,11 @@ useEffect(()=>{
 },[])
   
 useEffect(() => {
-  if (userLocation || !debouncedRadius) {
+  if (page === 1 && (userLocation || !debouncedRadius)) {
     fetchBooks();
   }
-}, [page]);
+}, [filterType, filterAuthor, filterCategory, debouncedSearch, filterCity, debouncedRadius, userLocation, page]);
+
 
 useEffect(() => {
   if (inView && hasMore && !loadingBooks) {
@@ -156,6 +157,7 @@ useEffect(() => {
 }, [inView]);
 
 useEffect(() => {
+  setBooks([]);            // ⬅️ Clear books before refetch
   setPage(1);
   setHasMore(true);
 }, [filterType, filterAuthor, filterCategory, debouncedSearch, filterCity, debouncedRadius, userLocation]);
