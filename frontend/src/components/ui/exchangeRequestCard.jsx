@@ -27,6 +27,9 @@ export default function ExchangeRequestCard({ req, onAccept, onReject, onCounter
             </p>
           )}
           <Link to={`/profile/${requestedBy._id}`}> <p className="mt-2 text-sm text-blue-600 hover:underline cursor-pointer"><strong className="text-gray-700">Requester:</strong> {requestedBy.firstName}</p></Link>
+          <p className="text-sm mt-2">
+              <strong className="text-gray-700">Duration:</strong> {req.durationInDays + " days"} 
+            </p>
           <p className={`mt-2 font-medium ${statusColour}`}>Status: {status}</p>
         </div>
         {/* actions */}

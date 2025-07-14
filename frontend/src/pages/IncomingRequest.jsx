@@ -70,14 +70,17 @@ const loaderRef = useRef();
 }, [loaderRef, hasMore]);
 
 useEffect(() => {
+  if (page === 1) return; // initial fetch happens in the next effect
   getIncomingRequests(page);
-}, [page]);
+}, [page, activeTab]);
+
 
 useEffect(() => {
   setIncomingRequests([]);
   setPurchaseNotifications([]);
   setPage(1);
   setHasMore(true);
+  getIncomingRequests(1);
 }, [activeTab]);
 
 
