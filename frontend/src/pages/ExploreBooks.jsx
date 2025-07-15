@@ -143,11 +143,27 @@ useEffect(()=>{
   fetchRequested();
 },[])
   
+// Fetch on filters change (reset page to 1)
 useEffect(() => {
-  if (page === 1 && (userLocation || !debouncedRadius)) {
+  if (userLocation || !debouncedRadius) {
     fetchBooks();
   }
-}, [filterType, filterAuthor, filterCategory, debouncedSearch, filterCity, debouncedRadius, userLocation, page]);
+}, [
+  filterType,
+  filterAuthor,
+  filterCategory,
+  debouncedSearch,
+  filterCity,
+  debouncedRadius,
+  userLocation,
+]);
+
+// Fetch more when page increases (infinite scroll)
+useEffect(() => {
+  if (page > 1) {
+    fetchBooks();
+  }
+}, [page]);
 
 
 useEffect(() => {
